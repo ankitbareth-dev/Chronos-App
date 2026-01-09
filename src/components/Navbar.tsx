@@ -65,11 +65,6 @@ const Navbar = () => {
                 FAQ
               </a>
             </li>
-            <li>
-              <a href="#founder" className={linkClass}>
-                Founder
-              </a>
-            </li>
           </ul>
         </nav>
 
@@ -109,11 +104,6 @@ const Navbar = () => {
           <li>
             <a href="#faq" onClick={closeMenu} className={linkClass}>
               FAQ
-            </a>
-          </li>
-          <li>
-            <a href="#founder" onClick={closeMenu} className={linkClass}>
-              Founder
             </a>
           </li>
         </ul>
