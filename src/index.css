@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ui-bg: #f8fafc;
+  --color-ui-card: #ffffff;
+  --color-ui-text: #0f172a;
+  --color-ui-muted: #64748b;
+  --color-ui-border: #e2e8f0;
+
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+
+  --color-category-blue: #3b82f6;
+  --color-category-green: #22c55e;
+  --color-category-orange: #f97316;
+
+  --font-sans: "Inter", "sans-serif";
+}
+
+body {
+  @apply font-sans bg-ui-bg text-ui-text antialiased;
+}
