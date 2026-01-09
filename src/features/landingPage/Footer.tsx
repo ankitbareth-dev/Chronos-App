@@ -10,57 +10,59 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-800 text-white py-8" id="footer">
+    // Changed to bg-brand-900 (Deep Ocean Blue) to match your theme
+    <footer className="bg-brand-900 text-white py-5" id="footer">
       <div className="max-w-[1200px] mx-auto px-5">
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center text-center mb-6">
+        <div className="flex flex-col items-center justify-center text-center mb-4">
           {/* Logo */}
-          <div className="flex items-center justify-center gap-2 text-[1.4rem] font-bold mb-2">
-            <FaClock className="text-brand-500" />
+          <div className="flex items-center justify-center gap-2 text-[1.25rem] font-bold mb-1">
+            {/* Icon uses lighter brand color for contrast on dark footer */}
+            <FaClock className="text-brand-400" />
             <span>Chronos</span>
           </div>
 
           {/* Tagline */}
-          <p className="text-[0.95rem] text-gray-400 mb-4 max-w-[300px] leading-relaxed opacity-90">
+          <p className="text-sm text-gray-400 mb-3 max-w-[300px] leading-relaxed opacity-90">
             Visualize your time, transform your life.
           </p>
 
           {/* Social Links */}
-          <div className="flex gap-3.5">
+          <div className="flex gap-3">
             <a
               href="#"
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:-translate-y-1"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="Twitter"
             >
-              <FaTwitter className="text-sm" />
+              <FaTwitter className="text-xs" />
             </a>
             <a
               href="#"
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:-translate-y-1"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="Facebook"
             >
-              <FaFacebookF className="text-sm" />
+              <FaFacebookF className="text-xs" />
             </a>
             <a
               href="#"
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:-translate-y-1"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="Instagram"
             >
-              <FaInstagram className="text-sm" />
+              <FaInstagram className="text-xs" />
             </a>
             <a
               href="#"
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:-translate-y-1"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="LinkedIn"
             >
-              <FaLinkedinIn className="text-sm" />
+              <FaLinkedinIn className="text-xs" />
             </a>
           </div>
         </div>
 
         {/* Bottom Copyright */}
-        <div className="flex flex-col items-center justify-center pt-6 border-t border-white/10">
-          <p className="text-xs text-gray-400 text-center m-0">
+        <div className="flex flex-col items-center justify-center pt-3 border-t border-white/10">
+          <p className="text-[10px] text-gray-500 text-center m-0">
             &copy; {year} Chronos. All rights reserved.
           </p>
         </div>
