@@ -1,0 +1,162 @@
+import { useEffect, useRef } from "react";
+import { FaChartLine, FaLightbulb, FaPalette } from "react-icons/fa";
+
+const Hero = () => {
+  const matrixAnimationRef = useRef<HTMLDivElement>(null);
+
+  // FIX 3: Moved functions above useEffect to fix hoisting warnings
+  const createMatrix = (container: HTMLElement, cols: number, rows: number) => {
+    container.innerHTML = "";
+    container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    for (let i = 0; i < rows * cols; i++) {
+      const cell = document.createElement("div");
+      cell.className =
+        "rounded transition-all duration-200 cursor-pointer bg-gray-50 hover:bg-gray-100";
+      container.appendChild(cell);
+    }
+  };
+
+  const animateMatrix = (container: HTMLElement) => {
+    // FIX 3: Cast to NodeListOf<HTMLElement> to allow access to .style
+    const cells = container.querySelectorAll(
+      ".rounded"
+    ) as NodeListOf<HTMLElement>;
+    const colors = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+
+    // Initial random coloring
+    cells.forEach((cell) => {
+      if (Math.random() > 0.7) {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        cell.style.backgroundColor = randomColor;
+      }
+    });
+
+    // Animation loop
+    const interval = setInterval(() => {
+      const randomCell = cells[Math.floor(Math.random() * cells.length)];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      randomCell.style.backgroundColor = randomColor;
+      randomCell.style.transform = "scale(1.1)";
+
+      setTimeout(() => {
+        randomCell.style.transform = "scale(1)";
+        if (Math.random() > 0.7) {
+          setTimeout(() => {
+            randomCell.style.backgroundColor = "transparent";
+          }, 1000);
+        }
+      }, 300);
+    }, 200);
+
+    return () => clearInterval(interval);
+  };
+
+  useEffect(() => {
+    if (matrixAnimationRef.current) {
+      createMatrix(matrixAnimationRef.current, 7, 24);
+      animateMatrix(matrixAnimationRef.current);
+    }
+  }, []);
+
+  const handleButtonClick = () => {
+    window.open("/auth", "_blank");
+  };
+
+  return (
+    <section className="relative overflow-hidden pt-[100px] pb-[250px] bg-gradient-to-br from-ui-bg to-brand-50">
+      <div className="max-w-[1200px] mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-[60px] items-center">
+        {/* Left Content */}
+        <div className="text-center lg:text-left">
+          <h1 className="text-[3.5rem] leading-tight mb-6 font-bold text-ui-text">
+            Visualize Your Time,
+            {/* FIX 1: Darkened gradient to 'from-brand-600' for better visibility */}
+            <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">
+              Transform Your Life
+            </span>
+          </h1>
+          <p className="text-[1.25rem] text-ui-muted mb-8">
+            Chronos helps you track, analyze, and optimize how you spend your
+            time with an intuitive color-coded matrix system.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
+            <button
+              className="bg-brand-500 hover:bg-brand-600 text-white font-medium px-7 py-3 rounded transition-colors duration-200 shadow-sm hover:shadow-md"
+              onClick={handleButtonClick}
+            >
+              Get Started — It's Free
+            </button>
+          </div>
+
+          <div className="flex gap-10 justify-center lg:justify-start">
+            <div className="flex flex-col">
+              <span className="text-[1.5rem] font-bold text-brand-500">
+                10,000+
+              </span>
+              <span className="text-sm text-ui-muted">Active Users</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[1.5rem] font-bold text-brand-500">
+                1M+
+              </span>
+              <span className="text-sm text-ui-muted">Hours Tracked</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[1.5rem] font-bold text-brand-500">
+                4.8/5
+              </span>
+              <span className="text-sm text-ui-muted">User Rating</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Visual */}
+        {/* FIX 2: Removed 'hidden lg:block'. Added 'h-[300px] lg:h-[500px]' for mobile sizing. */}
+        <div className="relative h-[300px] lg:h-[500px]">
+          {/* Matrix Container */}
+          <div
+            // FIX 3: Changed gap-[2px] to gap-0.5 as suggested by linter
+            className="absolute w-full h-full bg-white rounded-lg shadow-xl overflow-hidden p-4 grid gap-0.5"
+            id="matrixAnimation"
+            ref={matrixAnimationRef}
+          >
+            {/* Matrix animation will be generated by JS */}
+          </div>
+
+          {/* Floating Elements */}
+          <div className="absolute w-full h-full pointer-events-none">
+            <div className="absolute top-[20%] left-[-10%] bg-ui-card p-3 shadow-md rounded-md flex items-center gap-3 font-medium animate-[float_6s_ease-in-out_infinite]">
+              <FaChartLine className="text-brand-500 text-xl" />
+              <span>Productivity up 37%</span>
+            </div>
+
+            <div className="absolute top-[50%] right-[-5%] bg-ui-card p-3 shadow-md rounded-md flex items-center gap-3 font-medium animate-[float_6s_ease-in-out_infinite] animate-delay-[2s]">
+              <FaLightbulb className="text-brand-500 text-xl" />
+              <span>Discover your patterns</span>
+            </div>
+
+            <div className="absolute bottom-[15%] left-[10%] bg-ui-card p-3 shadow-md rounded-md flex items-center gap-3 font-medium animate-[float_6s_ease-in-out_infinite] animate-delay-[4s]">
+              <FaPalette className="text-brand-500 text-xl" />
+              <span>Customize your categories</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Wave SVG */}
+      <div className="absolute bottom-[-1px] left-0 w-full leading-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+          <path
+            fill="#ffffff"
+            fillOpacity="1"
+            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          ></path>
+        </svg>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
