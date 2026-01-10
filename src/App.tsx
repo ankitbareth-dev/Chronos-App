@@ -7,7 +7,7 @@ import HowItWorks from "./features/landingPage/HowItWorks";
 import Testimonials from "./features/landingPage/Testimonials";
 import Footer from "./features/landingPage/Footer";
 
-import AuthPage from "./features/auth/Auth";
+import AuthPage from "./features/auth/AuthPage";
 
 function LandingPage() {
   return (
