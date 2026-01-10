@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { FaChartLine, FaLightbulb, FaPalette } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
+  const navigate = useNavigate();
   const matrixAnimationRef = useRef<HTMLDivElement>(null);
 
   // FIX 3: Moved functions above useEffect to fix hoisting warnings
@@ -61,7 +63,7 @@ const Hero = () => {
   }, []);
 
   const handleButtonClick = () => {
-    window.open("/auth", "_blank");
+    navigate("/auth");
   };
 
   return (
@@ -83,7 +85,7 @@ const Hero = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
             <button
-              className="bg-brand-500 hover:bg-brand-600 text-white font-medium px-7 py-3 rounded transition-colors duration-200 shadow-sm hover:shadow-md"
+              className="bg-brand-500 hover:bg-brand-600 text-white font-medium px-7 py-3 rounded transition-colors duration-200 shadow-sm hover:shadow-md cursor-pointer"
               onClick={handleButtonClick}
             >
               Get Started — It's Free

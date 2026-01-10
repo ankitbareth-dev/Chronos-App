@@ -6,16 +6,17 @@ import {
   FaClock,
   FaTimes,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const AuthPage: React.FC = () => {
+  const navigate = useNavigate();
   const handleGoogleSignIn = () => {
     console.log("Initiating Google Sign In...");
     // Add your Google Auth logic here
   };
 
   const handleClose = () => {
-    // Logic to go back to home
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (

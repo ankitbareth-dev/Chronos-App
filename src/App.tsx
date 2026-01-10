@@ -1,22 +1,25 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
 import Navbar from "./components/Navbar";
 import Hero from "./features/landingPage/Hero";
-import Features from "./features/landingPage/Features";
-import HowItWorks from "./features/landingPage/HowItWorks";
-import Testimonials from "./features/landingPage/Testimonials";
-import Footer from "./features/landingPage/Footer";
+const Features = lazy(() => import("./features/landingPage/Features"));
+const HowItWorks = lazy(() => import("./features/landingPage/HowItWorks"));
+const Testimonials = lazy(() => import("./features/landingPage/Testimonials"));
+const Footer = lazy(() => import("./features/landingPage/Footer"));
 
-import AuthPage from "./features/auth/AuthPage";
+const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 
 function LandingPage() {
   return (
     <>
       <Hero />
-      <Features />
-      <HowItWorks />
-      <Testimonials />
-      <Footer />
+      <Suspense fallback={null}>
+        <Features />
+        <HowItWorks />
+        <Testimonials />
+        <Footer />
+      </Suspense>
     </>
   );
 }
@@ -25,10 +28,12 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/" element={<LandingPage />} />
-      </Routes>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/" element={<LandingPage />} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }
