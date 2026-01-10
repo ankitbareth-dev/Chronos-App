@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 
 import Navbar from "./components/Navbar";
 import Hero from "./features/landingPage/Hero";
+import LazyOnView from "./components/LazyOnView";
 const Features = lazy(() => import("./features/landingPage/Features"));
 const HowItWorks = lazy(() => import("./features/landingPage/HowItWorks"));
 const Testimonials = lazy(() => import("./features/landingPage/Testimonials"));
@@ -15,10 +16,21 @@ function LandingPage() {
     <>
       <Hero />
       <Suspense fallback={null}>
-        <Features />
-        <HowItWorks />
-        <Testimonials />
-        <Footer />
+        <LazyOnView>
+          <Features />
+        </LazyOnView>
+
+        <LazyOnView>
+          <HowItWorks />
+        </LazyOnView>
+
+        <LazyOnView>
+          <Testimonials />
+        </LazyOnView>
+
+        <LazyOnView rootMargin="0px">
+          <Footer />
+        </LazyOnView>
       </Suspense>
     </>
   );
