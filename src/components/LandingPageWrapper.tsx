@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import LandingPage from "../features/landingPage/LandingPage";
+import LandingPage from "../features/landing/LandingPage";
 import { useAppSelector } from "../app/hooks";
 import { selectAuth } from "../features/auth/authSlice";
 

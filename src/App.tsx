@@ -11,16 +11,16 @@ import { useEffect } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 
-import Navbar from "./components/Navbar";
-
 import { checkAuth, selectAuth } from "./features/auth/authSlice";
 import { LandingPageWrapper } from "./components/LandingPageWrapper";
+
+import Navbar from "./components/Navbar";
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 
 const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector(selectAuth);
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -43,7 +43,7 @@ function App() {
       <div className="h-screen w-screen flex items-center justify-center bg-ui-bg">
         <div className="flex flex-col items-center gap-3">
           <FaSpinner className="text-4xl text-brand-500 animate-spin" />
-          <p className="text-ui-muted">Verifying session...</p>
+          <p className="text-ui-muted">Loading...</p>
         </div>
       </div>
     );
