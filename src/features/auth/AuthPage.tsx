@@ -1,33 +1,86 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaGoogle,
   FaChartPie,
   FaShieldAlt,
   FaClock,
   FaTimes,
+  FaSpinner,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import { ENV } from "../../config/env";
+
+const baseUrl = ENV.API_BASE_URL;
+
+interface GoogleTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  scope: string;
+}
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const handleGoogleSignIn = () => {
-    console.log("Initiating Google Sign In...");
-    // Add your Google Auth logic here
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClose = () => {
     navigate("/");
   };
 
+  // Google Login Hook
+  const googleSignIn = useGoogleLogin({
+    onSuccess: async (tokenResponse: GoogleTokenResponse) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/google`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idToken: tokenResponse.access_token, // Sending the access token to backend
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `Server Error: ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+
+        // Optional: Store token if your backend returns one
+        // if (data.token) localStorage.setItem("authToken", data.token);
+
+        // Redirect to dashboard on success
+        navigate("/dashboard");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google Sign-In was unsuccessful. Please try again.");
+      setLoading(false);
+    },
+    flow: "implicit", // Use implicit flow for client-side retrieval
+  });
+
+  const handleGoogleSignIn = () => {
+    setError(null);
+    googleSignIn();
+  };
+
   return (
-    //
-    // FIX FOR NAVBAR OVERLAP:
-    // 1. mt-16 lg:mt-20: Pushes content down so it sits BELOW the navbar.
-    //    - Assumes Mobile Navbar is ~64px (4rem) and Desktop is ~80px (5rem).
-    // 2. min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]:
-    //    - Calculates height by subtracting the margin size.
-    //    - This ensures NO scrollbars (Margin + Height = 100vh).
-    //
     <div className="w-full mt-16 lg:mt-20 min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)] flex items-center justify-center bg-ui-bg font-sans relative overflow-hidden bg-gradient-to-br from-ui-bg to-brand-50">
       {/* --- Main Card (Centered) --- */}
       <div className="w-full max-w-[420px] bg-ui-card rounded-2xl shadow-xl border border-ui-border p-8 sm:p-10 relative z-20 transform transition-all hover:shadow-2xl duration-500">
@@ -62,16 +115,38 @@ const AuthPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Error Message Area */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm">
+            <FaTimes className="mt-0.5 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         {/* Auth Form */}
         <div className="space-y-4">
           <button
             onClick={handleGoogleSignIn}
-            className="group w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 border-2 border-ui-border text-ui-text font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 hover:border-brand-300 hover:shadow-md active:scale-[0.98]"
+            disabled={loading}
+            className={`group w-full flex items-center justify-center gap-3 bg-white border-2 text-ui-text font-semibold py-3.5 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] ${
+              loading
+                ? "border-gray-200 bg-gray-50 cursor-not-allowed text-gray-400"
+                : "border-ui-border hover:bg-gray-50 hover:border-brand-300 hover:shadow-md"
+            }`}
             type="button"
           >
-            {/* Google Icon */}
-            <FaGoogle className="text-lg text-red-500 group-hover:scale-110 transition-transform duration-200" />
-            <span>Continue with Google</span>
+            {loading ? (
+              <>
+                <FaSpinner className="text-lg animate-spin" />
+                <span>Connecting...</span>
+              </>
+            ) : (
+              <>
+                {/* Google Icon */}
+                <FaGoogle className="text-lg text-red-500 group-hover:scale-110 transition-transform duration-200" />
+                <span>Continue with Google</span>
+              </>
+            )}
           </button>
         </div>
 

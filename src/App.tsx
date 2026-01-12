@@ -10,6 +10,7 @@ const Testimonials = lazy(() => import("./features/landingPage/Testimonials"));
 const Footer = lazy(() => import("./features/landingPage/Footer"));
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
+const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 
 function LandingPage() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Suspense>
     </Router>
