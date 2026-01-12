@@ -85,7 +85,7 @@ const Testimonials = () => {
   }, []);
 
   return (
-    <section className="py-[100px] bg-ui-bg">
+    <section className="py-[100px] bg-ui-bg" id="FAQ">
       <div className="max-w-[1200px] mx-auto px-5">
         {/* Header */}
         <div className="text-center mb-[60px]">

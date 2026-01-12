@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, selectAuth } from "../features/auth/authSlice";
+import ModalPortal from "./ModalPortal";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -132,7 +133,7 @@ const Navbar = () => {
                 </a>
               </li>
               <li>
-                <a href="#faq" className={linkClass}>
+                <a href="#FAQ" className={linkClass}>
                   FAQ
                 </a>
               </li>
@@ -277,37 +278,41 @@ const Navbar = () => {
 
       {/* LOGOUT CONFIRMATION MODAL */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-ui-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-auto">
-            <h3 className="text-xl font-bold text-ui-text mb-2">Sign out?</h3>
-            <p className="text-ui-text mb-6">
-              Are you sure you want to log out? You will need to sign in again
-              to access your dashboard.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={cancelLogout}
-                disabled={loading}
-                className="flex-1 px-4 py-2 rounded-xl border border-ui-border text-ui-text font-semibold hover:bg-ui-bg disabled:opacity-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmLogout}
-                disabled={loading}
-                className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white font-semibold hover:bg-brand-600 flex items-center justify-center gap-2 disabled:opacity-70 transition-colors"
-              >
-                {loading ? (
-                  <>
-                    <FaSpinner className="animate-spin" /> Signing out...
-                  </>
-                ) : (
-                  "Sign out"
-                )}
-              </button>
+        <ModalPortal>
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-ui-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-auto">
+              <h3 className="text-xl font-bold text-ui-text mb-2">Sign out?</h3>
+              <p className="text-ui-text mb-6">
+                Are you sure you want to log out? You will need to sign in again
+                to access your dashboard.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelLogout}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 rounded-xl border border-ui-border"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={confirmLogout}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white flex items-center justify-center gap-2 disabled:opacity-70"
+                >
+                  {loading ? (
+                    <>
+                      <FaSpinner className="animate-spin" /> Signing out...
+                    </>
+                  ) : (
+                    "Sign out"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </header>
   );
