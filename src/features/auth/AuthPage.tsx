@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FaGoogle,
   FaChartPie,
@@ -9,9 +9,8 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
-import { ENV } from "../../config/env";
-
-const baseUrl = ENV.API_BASE_URL;
+import { login } from "../../features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -22,61 +21,31 @@ interface GoogleTokenResponse {
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+
+  const { loading, error } = useAppSelector((state) => state.auth);
 
   const handleClose = () => {
     navigate("/");
   };
 
-  // Google Login Hook
   const googleSignIn = useGoogleLogin({
     onSuccess: async (tokenResponse: GoogleTokenResponse) => {
-      setLoading(true);
-      setError(null);
-
       try {
-        const response = await fetch(`${baseUrl}/api/auth/google`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            idToken: tokenResponse.access_token,
-          }),
-        });
+        await dispatch(login(tokenResponse.access_token)).unwrap();
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message || `Server Error: ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-
-        // Optional: Store token if your backend returns one
-        // if (data.token) localStorage.setItem("authToken", data.token);
-
-        // Redirect to dashboard on success
         navigate("/dashboard");
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "An unknown error occurred.";
-        setError(message);
-      } finally {
-        setLoading(false);
+        console.error("Login error:", err);
       }
     },
     onError: () => {
-      setError("Google Sign-In was unsuccessful. Please try again.");
-      setLoading(false);
+      console.error("Google Sign-In failed");
     },
-    flow: "implicit", // Use implicit flow for client-side retrieval
+    flow: "implicit",
   });
 
   const handleGoogleSignIn = () => {
-    setError(null);
     googleSignIn();
   };
 
