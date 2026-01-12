@@ -11,15 +11,19 @@ export interface User {
 }
 
 interface AuthApiResponse {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
+  success: boolean;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl: string;
+  };
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  initialLoading: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -27,13 +31,38 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  initialLoading: true,
   loading: false,
   error: null,
 };
 
+export const checkAuth = createAppAsyncThunk<User>(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${ENV.API_BASE_URL}/api/auth/check-auth`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Not authenticated");
+      }
+
+      const data = await res.json();
+      return data;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue("Unexpected error occurred");
+    }
+  }
+);
+
 export const login = createAppAsyncThunk<User, string, { rejectValue: string }>(
   "auth/login",
-  async (token, { rejectWithValue }) => {
+  async (idToken, { rejectWithValue }) => {
     try {
       const res = await fetch(`${ENV.API_BASE_URL}/api/auth/google`, {
         method: "POST",
@@ -41,7 +70,7 @@ export const login = createAppAsyncThunk<User, string, { rejectValue: string }>(
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ idToken }),
       });
 
       if (!res.ok) {
@@ -62,10 +91,10 @@ export const login = createAppAsyncThunk<User, string, { rejectValue: string }>(
       const data: AuthApiResponse = await res.json();
 
       return {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        avatarUrl: data.avatarUrl,
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        avatarUrl: data.user.avatarUrl,
       };
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -81,7 +110,6 @@ export const logout = createAppAsyncThunk<void, void, { rejectValue: string }>(
   async (_, { rejectWithValue }) => {
     try {
       await fetch(`${ENV.API_BASE_URL}/api/auth/logout`, {
-        method: "POST",
         credentials: "include",
       });
     } catch (err: unknown) {
@@ -99,7 +127,19 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
+      .addCase(checkAuth.pending, (state) => {
+        state.initialLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.initialLoading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.initialLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
