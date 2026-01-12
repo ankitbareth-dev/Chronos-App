@@ -42,7 +42,7 @@ const AuthPage: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            idToken: tokenResponse.access_token, // Sending the access token to backend
+            idToken: tokenResponse.access_token,
           }),
         });
 

@@ -1,0 +1,126 @@
+import { createSlice } from "@reduxjs/toolkit";
+import type { RootState } from "../../app/store";
+import { createAppAsyncThunk } from "../../app/withTypes";
+import { ENV } from "../../config/env";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+}
+
+interface AuthApiResponse {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+}
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: AuthState = {
+  user: null,
+  isAuthenticated: false,
+  loading: false,
+  error: null,
+};
+
+export const login = createAppAsyncThunk<User, string, { rejectValue: string }>(
+  "auth/login",
+  async (token, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${ENV.API_BASE_URL}/api/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ token }),
+      });
+
+      if (!res.ok) {
+        const errorBody: unknown = await res.json().catch(() => null);
+
+        if (
+          typeof errorBody === "object" &&
+          errorBody !== null &&
+          "message" in errorBody &&
+          typeof (errorBody as { message: unknown }).message === "string"
+        ) {
+          return rejectWithValue((errorBody as { message: string }).message);
+        }
+
+        return rejectWithValue("Login failed");
+      }
+
+      const data: AuthApiResponse = await res.json();
+
+      return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatarUrl,
+      };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue("Unexpected error occurred");
+    }
+  }
+);
+
+export const logout = createAppAsyncThunk<void, void, { rejectValue: string }>(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await fetch(`${ENV.API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return rejectWithValue(err.message);
+      }
+      return rejectWithValue("Logout failed");
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "Login failed";
+      })
+
+      .addCase(logout.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+      });
+  },
+});
+
+export const selectAuth = (state: RootState) => state.auth;
+
+export default authSlice.reducer;
