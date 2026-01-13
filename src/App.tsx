@@ -3,8 +3,6 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation,
-  Outlet,
 } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useEffect } from "react";
@@ -15,20 +13,10 @@ import { checkAuth, selectAuth } from "./features/auth/authSlice";
 import { LandingPageWrapper } from "./components/LandingPageWrapper";
 
 import Navbar from "./components/Navbar";
+import { RouteGuard } from "./utils/RouteGuard";
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
-
-const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated } = useAppSelector(selectAuth);
-  const location = useLocation();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-
-  return <Outlet />;
-};
 
 function App() {
   const dispatch = useAppDispatch();
@@ -54,11 +42,13 @@ function App() {
       <Navbar />
       <Suspense fallback={null}>
         <Routes>
-          <Route path="/auth" element={<AuthPage />} />
+          <Route element={<RouteGuard requireAuth={false} />}>
+            <Route path="/auth" element={<AuthPage />} />
+          </Route>
 
           <Route path="/" element={<LandingPageWrapper />} />
 
-          <Route element={<ProtectedRoute />}>
+          <Route element={<RouteGuard requireAuth={true} />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
 

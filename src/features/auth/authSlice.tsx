@@ -36,7 +36,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const checkAuth = createAppAsyncThunk<User>(
+export const checkAuth = createAppAsyncThunk<AuthApiResponse>(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
@@ -132,7 +132,7 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.initialLoading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
       })
       .addCase(checkAuth.rejected, (state) => {
