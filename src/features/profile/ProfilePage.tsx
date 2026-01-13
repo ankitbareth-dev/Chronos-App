@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import {
   FaCamera,
   FaUser,
+  FaTimes,
+  FaSpinner,
   FaCheckCircle,
   FaExclamationCircle,
 } from "react-icons/fa";
@@ -16,6 +18,46 @@ export interface User {
   avatarUrl: string;
 }
 
+// --- Custom Toast Component ---
+const Toast = ({
+  message,
+  type,
+  onClose,
+}: {
+  message: string | null;
+  type: "success" | "error";
+  onClose: () => void;
+}) => {
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(onClose, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, onClose]);
+
+  if (!message) return null;
+
+  const isSuccess = type === "success";
+  const bgClass = isSuccess ? "bg-brand-500" : "bg-red-500";
+  const icon = isSuccess ? (
+    <FaCheckCircle className="text-white text-lg" />
+  ) : (
+    <FaExclamationCircle className="text-white text-lg" />
+  );
+
+  return (
+    <div
+      className={`fixed top-24 right-5 z-[100] flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg text-white transform transition-all duration-300 translate-x-0 ${bgClass}`}
+    >
+      {icon}
+      <span className="font-medium text-sm">{message}</span>
+      <button onClick={onClose} className="text-white/80 hover:text-white ml-4">
+        <FaTimes />
+      </button>
+    </div>
+  );
+};
+
 const ProfilePage = () => {
   const dispatch = useAppDispatch();
 
@@ -28,23 +70,15 @@ const ProfilePage = () => {
   );
 
   // Form State
-  const [name, setName] = useState(authUser?.name || "");
+  const [name, setName] = useState(() => authUser?.name || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
-    authUser?.avatarUrl || null
+    () => authUser?.avatarUrl || null
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync form if authUser loads
-  useEffect(() => {
-    if (authUser) {
-      setName(authUser.name);
-      setPreviewUrl(authUser.avatarUrl);
-    }
-  }, [authUser]);
-
-  // Cleanup object URL to avoid memory leaks
+  // Cleanup Blob URL
   useEffect(() => {
     return () => {
       if (previewUrl && previewUrl.startsWith("blob:")) {
@@ -52,6 +86,9 @@ const ProfilePage = () => {
       }
     };
   }, [previewUrl]);
+
+  // --- Dirty State Logic ---
+  const isDirty = name !== authUser?.name || avatarFile !== null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -71,8 +108,7 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!authUser) return;
+    if (!authUser || !isDirty) return;
 
     const formData = new FormData();
     formData.append("name", name);
@@ -85,43 +121,39 @@ const ProfilePage = () => {
 
     if (updateProfile.fulfilled.match(resultAction)) {
       dispatch(checkAuth());
-
       setAvatarFile(null);
+      if (resultAction.payload?.avatarUrl) {
+        setPreviewUrl(resultAction.payload.avatarUrl);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-ui-bg pb-20 pt-28 px-4 sm:px-6 lg:px-8">
+    <div
+      key={authUser?.id || "loading"}
+      className="min-h-screen bg-ui-bg pb-20 pt-28 px-4 sm:px-6 lg:px-8"
+    >
+      {/* Custom Toast Notification */}
+      {successMessage && (
+        <Toast
+          message={successMessage}
+          type="success"
+          onClose={() => dispatch(clearSuccess())}
+        />
+      )}
+      {error && (
+        <Toast
+          message={error}
+          type="error"
+          onClose={() => dispatch(clearError())}
+        />
+      )}
+
       <div className="max-w-6xl mx-auto">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-ui-text tracking-tight">
-            Account Settings
-          </h1>
-          <p className="mt-2 text-ui-muted">
-            Manage your account settings and set e-mail preferences.
-          </p>
-        </div>
 
-        {/* Status Banners */}
-        <div className="mb-6 space-y-3">
-          {error && (
-            <div className="flex items-center p-4 rounded-lg bg-red-50 border border-red-200 text-red-800">
-              <FaExclamationCircle className="mr-3 text-red-500 flex-shrink-0" />
-              <p className="text-sm font-medium">{error}</p>
-            </div>
-          )}
-
-          {successMessage && (
-            <div className="flex items-center p-4 rounded-lg bg-green-50 border border-green-200 text-green-800">
-              <FaCheckCircle className="mr-3 text-green-600 flex-shrink-0" />
-              <p className="text-sm font-medium">{successMessage}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* LEFT COLUMN: Identity / Avatar (4 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* LEFT COLUMN: Avatar (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-ui-card rounded-xl shadow-sm border border-ui-border overflow-hidden">
               <div className="bg-brand-50/50 p-6 border-b border-ui-border">
@@ -130,72 +162,72 @@ const ProfilePage = () => {
                 </h2>
               </div>
 
-              <div className="p-6 flex flex-col items-center">
-                <div className="relative group">
-                  {/* Avatar Image */}
-                  <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-ui-bg shadow-md relative">
+              <div className="p-8 flex flex-col items-center">
+                <div
+                  className="relative group cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="w-36 h-36 rounded-full overflow-hidden ring-4 ring-ui-bg shadow-md relative transition-transform duration-300 group-hover:scale-105">
                     {previewUrl ? (
                       <img
                         src={previewUrl}
                         alt="Profile"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-ui-bg flex items-center justify-center text-ui-muted">
-                        <FaUser className="w-16 h-16" />
+                        <FaUser className="w-20 h-20" />
                       </div>
                     )}
                   </div>
 
-                  {/* Camera Button Overlay */}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-1 right-1 bg-brand-500 hover:bg-brand-600 text-white rounded-full p-2.5 shadow-lg transition-transform hover:scale-110 focus:outline-none ring-2 ring-white"
-                  >
-                    <FaCamera className="w-4 h-4" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <FaCamera className="text-white text-2xl" />
+                  </div>
                 </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg, image/png, image/webp"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
 
                 <div className="mt-4 text-center">
                   <p className="text-sm font-medium text-ui-text">
-                    {name || "User Name"}
+                    {previewUrl ? "Change Photo" : "Upload Photo"}
                   </p>
                   <p className="text-xs text-ui-muted mt-1">
-                    JPG, GIF or PNG. Max 2MB.
+                    JPG, PNG or WEBP. Max 2MB.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Form / Information (8 cols) */}
+          {/* RIGHT COLUMN: Form (8 cols) */}
           <div className="lg:col-span-8">
             <div className="bg-ui-card rounded-xl shadow-sm border border-ui-border">
-              <div className="bg-ui-card px-6 py-4 border-b border-ui-border">
+              {/* Header */}
+              <div className="bg-ui-card px-6 py-5 border-b border-ui-border">
                 <h2 className="text-lg font-semibold text-ui-text">
                   Personal Information
                 </h2>
                 <p className="text-sm text-ui-muted mt-1">
-                  Update your account's personal information.
+                  Update your display name and public profile.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                {/* Name Field */}
-                <div className="grid grid-cols-1 gap-6">
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="space-y-8 pb-8">
+                  {/* Name Field */}
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-ui-text mb-1.5"
+                      className="block text-sm font-medium text-ui-text mb-2"
                     >
-                      Full Name
+                      Display Name
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-ui-muted">
@@ -214,13 +246,22 @@ const ProfilePage = () => {
                         placeholder="e.g. Alex Johnson"
                       />
                     </div>
+
+                    {/* FIXED: Reserved height for "Unsaved changes" text to prevent layout shifts */}
+                    <div className="min-h-[20px] mt-1">
+                      {name !== authUser?.name && (
+                        <p className="text-xs text-brand-600">
+                          Unsaved changes
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Email Field (Read Only) */}
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-ui-text mb-1.5"
+                      className="block text-sm font-medium text-ui-text mb-2"
                     >
                       Email Address
                     </label>
@@ -237,51 +278,24 @@ const ProfilePage = () => {
                         className="pl-10 block w-full rounded-lg border border-ui-border bg-ui-bg/50 py-2.5 text-sm text-ui-muted cursor-not-allowed focus:outline-none"
                       />
                     </div>
-                    <p className="mt-1.5 text-xs text-ui-muted">
-                      Contact support to change your registered email address.
-                    </p>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="pt-6 border-t border-ui-border flex items-center justify-end gap-3">
-                  {successMessage && (
-                    <button
-                      type="button"
-                      onClick={() => dispatch(clearSuccess())}
-                      className="px-4 py-2 text-sm font-medium text-ui-muted hover:text-ui-text transition-colors"
-                    >
-                      Close
-                    </button>
-                  )}
-
+                {/* Action Button - Always Visible */}
+                <div className="pt-6 border-t border-ui-border flex justify-end">
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    disabled={!isDirty || loading}
+                    className={`inline-flex items-center justify-center min-w-[140px] px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm transition-all duration-300 ease-in-out
+                      ${
+                        !isDirty || loading
+                          ? "bg-ui-bg border border-ui-border text-ui-muted opacity-60 cursor-not-allowed"
+                          : "bg-brand-600 border-transparent text-white hover:bg-brand-500 focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 opacity-100 shadow-md transform active:scale-95"
+                      }`}
                   >
                     {loading ? (
                       <>
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
+                        <FaSpinner className="animate-spin -ml-1 mr-2 h-4 w-4" />
                         Saving...
                       </>
                     ) : (

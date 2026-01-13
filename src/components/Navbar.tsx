@@ -86,20 +86,27 @@ const Navbar = () => {
   };
 
   const confirmLogout = () => {
-    setShowLogoutModal(false);
+    // DO NOT close the modal here. We want to see the spinner.
+    // setShowLogoutModal(false); <--- REMOVED
+
     dispatch(logout())
       .unwrap()
       .then(() => {
+        // Only close and navigate AFTER server confirms logout
+        setShowLogoutModal(false);
         navigate("/");
       })
-      .catch(() => {
-        // Error handling
+      .catch((err) => {
+        // If logout fails, close modal and handle error
+        setShowLogoutModal(false);
+        console.error("Logout failed", err);
       });
   };
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
+
   const handleProfileClick = () => {
     navigate("/profile");
   };
@@ -107,7 +114,6 @@ const Navbar = () => {
   const linkClass =
     "font-medium text-ui-text hover:text-brand-500 transition-colors";
 
-  // Shared style for dropdown items
   const menuItemClass =
     "w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ui-text hover:bg-ui-bg transition-colors text-left";
 
@@ -293,17 +299,17 @@ const Navbar = () => {
                 <button
                   onClick={cancelLogout}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-xl border border-ui-border text-ui-text hover:bg-ui-bg"
+                  className="flex-1 px-4 py-2 rounded-xl border border-ui-border text-ui-text hover:bg-ui-bg disabled:opacity-70"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmLogout}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-70"
+                  className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-70 flex items-center justify-center gap-2"
                 >
                   {loading ? (
-                    <FaSpinner className="animate-spin mx-auto" />
+                    <FaSpinner className="animate-spin" />
                   ) : (
                     "Sign out"
                   )}

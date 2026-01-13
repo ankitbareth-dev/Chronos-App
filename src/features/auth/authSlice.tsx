@@ -153,7 +153,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload ?? "Login failed";
       })
-
+      .addCase(logout.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
