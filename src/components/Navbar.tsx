@@ -100,6 +100,9 @@ const Navbar = () => {
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
 
   const linkClass =
     "font-medium text-ui-text hover:text-brand-500 transition-colors";
@@ -200,7 +203,10 @@ const Navbar = () => {
 
                 {/* 2. Simple List: Profile & Logout */}
                 <div className="py-1">
-                  <button className={menuItemClass}>
+                  <button
+                    className={menuItemClass}
+                    onClick={handleProfileClick}
+                  >
                     <FaRegUser className="text-ui-muted w-5" />
                     <span>Profile</span>
                   </button>

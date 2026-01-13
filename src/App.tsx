@@ -14,6 +14,7 @@ import { LandingPageWrapper } from "./components/LandingPageWrapper";
 
 import Navbar from "./components/Navbar";
 import { RouteGuard } from "./utils/RouteGuard";
+import ProfilePage from "./features/profile/ProfilePage";
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
@@ -50,6 +51,7 @@ function App() {
 
           <Route element={<RouteGuard requireAuth={true} />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
