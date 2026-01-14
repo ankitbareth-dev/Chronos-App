@@ -3,7 +3,7 @@ import { FaTag, FaPen, FaTrash, FaSpinner } from "react-icons/fa";
 export interface Category {
   id: string;
   name: string;
-  color: string; // Now using hex
+  color: string;
 }
 
 interface CategoryListProps {
@@ -12,6 +12,8 @@ interface CategoryListProps {
   onAdd: () => void;
   onEdit: (category: Category) => void;
   onDelete: (category: Category) => void;
+  onSelect: (category: Category | null) => void; // NEW
+  selectedCategory: Category | null; // NEW
   deletingId: string | null;
   savingId: string | null;
 }
@@ -22,10 +24,11 @@ const CategoryList = ({
   onAdd,
   onEdit,
   onDelete,
+  onSelect,
+  selectedCategory,
   deletingId,
   savingId,
 }: CategoryListProps) => {
-  // Helper to convert hex to rgba for background opacity
   const getRgba = (hex: string, alpha: number) => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -44,69 +47,82 @@ const CategoryList = ({
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-10 space-y-3">
-            <div className="w-8 h-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="text-center py-10 px-4">
-            <p className="text-sm text-ui-muted mb-2">No categories found.</p>
+          /* ... Loader ... */
+          <div className="flex justify-center py-10">
+            <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           categories.map((category) => {
             const isDeleting = deletingId === category.id;
             const isSaving = savingId === category.id;
+            const isSelected = selectedCategory?.id === category.id; // NEW CHECK
 
-            // Dynamic styles based on category.color
-            const bgStyle = { backgroundColor: getRgba(category.color, 0.1) };
+            const bgStyle = {
+              backgroundColor: getRgba(category.color, isSelected ? 0.2 : 0.1),
+            }; // Highlight selected
             const textStyle = { color: category.color };
-            const borderStyle = { borderColor: getRgba(category.color, 0.2) };
+            const borderStyle = {
+              borderColor: getRgba(category.color, isSelected ? 0.5 : 0.2),
+            }; // Highlight border
 
             return (
               <div
                 key={category.id}
-                className="group flex items-center justify-between p-3 rounded-lg border border-transparent hover:shadow-sm transition-all cursor-pointer"
+                onClick={() => {
+                  // Toggle selection
+                  if (isSelected) {
+                    onSelect(null);
+                  } else {
+                    onSelect(category);
+                  }
+                }}
+                className={`group flex items-center justify-between p-3 rounded-lg border hover:shadow-sm transition-all cursor-pointer ${
+                  isSelected ? "shadow-md" : ""
+                }`}
                 style={{ ...bgStyle, ...borderStyle }}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Color Dot */}
                   <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: category.color }}
+                    className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                      isSelected ? "ring-2 ring-offset-1" : ""
+                    }`}
+                    style={{
+                      backgroundColor: category.color,
+                      ringColor: category.color,
+                    }}
                   />
                   <span
-                    className="text-sm font-medium truncate"
+                    className={`text-sm font-medium truncate ${
+                      isSelected ? "font-bold" : ""
+                    }`}
                     style={textStyle}
                   >
-                    {isDeleting ? "Deleting..." : category.name}
+                    {category.name}
                   </span>
+                  {isSelected && (
+                    <span className="text-[10px] text-brand-600 ml-auto mr-2 animate-pulse">
+                      Active
+                    </span>
+                  )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Hide edit/delete when actively painting to avoid confusion, or keep them */}
+                <div
+                  className="flex items-center gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(category);
-                    }}
+                    onClick={() => onEdit(category)}
                     disabled={isDeleting || isSaving}
-                    className="p-1.5 rounded hover:bg-white/50 disabled:cursor-not-allowed transition-colors"
+                    className="p-1.5 rounded hover:bg-white/50 disabled:cursor-not-allowed"
                     style={textStyle}
-                    title="Edit"
                   >
-                    {isSaving ? (
-                      <FaSpinner className="animate-spin text-xs" />
-                    ) : (
-                      <FaPen className="text-xs" />
-                    )}
+                    <FaPen className="text-xs" />
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(category);
-                    }}
+                    onClick={() => onDelete(category)}
                     disabled={isDeleting || isSaving}
-                    className="p-1.5 rounded text-red-500 opacity-70 hover:opacity-100 hover:bg-red-100/50 disabled:cursor-not-allowed transition-colors"
-                    title="Delete"
+                    className="p-1.5 rounded text-red-500 opacity-70 hover:opacity-100 hover:bg-red-100/50 disabled:cursor-not-allowed"
                   >
                     {isDeleting ? (
                       <FaSpinner className="animate-spin text-xs" />
