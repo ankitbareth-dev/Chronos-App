@@ -22,7 +22,6 @@ const initialState: MatrixState = {
   deletingId: null,
 };
 
-// 1. Fetch Matrices
 export const fetchMatrices = createAppAsyncThunk<Matrix[]>(
   "matrix/fetchMatrices",
   async (_, { rejectWithValue }) => {
@@ -31,9 +30,7 @@ export const fetchMatrices = createAppAsyncThunk<Matrix[]>(
         method: "GET",
         credentials: "include",
       });
-
       if (!response.ok) throw new Error("Failed to fetch matrices");
-
       const data = await response.json();
       return data.data;
     } catch (err) {
@@ -42,8 +39,6 @@ export const fetchMatrices = createAppAsyncThunk<Matrix[]>(
   }
 );
 
-// 2. Create Matrix
-// Note: We accept generic object here, the specific typing is handled by the Modal
 export const createMatrix = createAppAsyncThunk<
   Matrix,
   any,
@@ -56,14 +51,11 @@ export const createMatrix = createAppAsyncThunk<
       credentials: "include",
       body: JSON.stringify(matrixData),
     });
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      // Handle validation errors if backend sends them
       if (errorData?.errors) return rejectWithValue("Validation failed");
       throw new Error("Failed to create matrix");
     }
-
     const data = await response.json();
     return data.data;
   } catch (err) {
@@ -71,7 +63,31 @@ export const createMatrix = createAppAsyncThunk<
   }
 });
 
-// 3. Delete Matrix
+// NEW: Edit Matrix
+export const editMatrix = createAppAsyncThunk<
+  Matrix,
+  { id: string; name: string },
+  { rejectValue: string }
+>("matrix/editMatrix", async ({ id, name }, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${ENV.API_BASE_URL}/api/matrix/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update name");
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (err) {
+    return rejectWithValue("Could not update matrix");
+  }
+});
+
 export const deleteMatrix = createAppAsyncThunk<
   void,
   string,
@@ -82,9 +98,7 @@ export const deleteMatrix = createAppAsyncThunk<
       method: "DELETE",
       credentials: "include",
     });
-
     if (!response.ok) throw new Error("Failed to delete");
-
     return;
   } catch (err) {
     return rejectWithValue("Could not delete matrix");
@@ -108,12 +122,19 @@ const matrixSlice = createSlice({
       .addCase(fetchMatrices.rejected, (state) => {
         state.loading = false;
       })
-
       // Create
       .addCase(createMatrix.fulfilled, (state, action) => {
-        state.matrices.unshift(action.payload); // Add to top of list
+        state.matrices.unshift(action.payload);
       })
-
+      // Edit (Optimistic Update)
+      .addCase(editMatrix.fulfilled, (state, action) => {
+        const index = state.matrices.findIndex(
+          (m) => m.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.matrices[index].name = action.payload.name;
+        }
+      })
       // Delete
       .addCase(deleteMatrix.pending, (state, action) => {
         state.deletingId = action.meta.arg;
