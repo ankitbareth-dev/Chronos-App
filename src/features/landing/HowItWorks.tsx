@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useMemo } from "react";
 import {
   FaLightbulb,
   FaHandPointer,
@@ -14,26 +14,31 @@ interface Category {
   color: string;
 }
 
-interface UsageData {
-  [key: string]: number;
+interface CellData {
+  id: number;
+  color: string;
 }
 
 const HowItWorks = () => {
-  const matrixDemoRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState<Category[]>([
     { name: "Deep Work", color: "#6366f1" },
     { name: "Exercise", color: "#10b981" },
     { name: "Family Time", color: "#f59e0b" },
   ]);
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryColor, setNewCategoryColor] = useState("#4f46e5");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [matrixCells, setMatrixCells] = useState<HTMLElement[]>([]);
-  const [userInteractions, setUserInteractions] = useState(0);
-  const [categoryUsage, setCategoryUsage] = useState<UsageData>({
+
+  // Generate matrix state once (7 cols x 12 rows = 84 cells)
+  const [matrixCells, setMatrixCells] = useState<CellData[]>(
+    Array.from({ length: 84 }, (_, i) => ({ id: i, color: "#f1f5f9" }))
+  );
+
+  const [categoryUsage, setCategoryUsage] = useState<Record<string, number>>({
     "Deep Work": 0,
     Exercise: 0,
     "Family Time": 0,
@@ -55,89 +60,51 @@ const HowItWorks = () => {
     "5-6 PM",
   ];
 
-  // --- Matrix Logic ---
-  useEffect(() => {
-    if (matrixDemoRef.current) {
-      createMatrix(matrixDemoRef.current, 7, 12);
-      const cells = colorizeMatrixDemo(matrixDemoRef.current);
-      setMatrixCells(cells);
-    }
-  }, []);
+  // --- Handlers ---
 
-  const createMatrix = (container: HTMLElement, cols: number, rows: number) => {
-    container.innerHTML = "";
-    container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  const handleCellClick = (index: number) => {
+    setMatrixCells((prev) => {
+      const newCells = [...prev];
+      const currentCell = newCells[index];
+      let newColor = currentCell.color;
 
-    for (let i = 0; i < rows * cols; i++) {
-      const cell = document.createElement("div");
-      // Tailwind classes for the cell + unique class for selector
-      cell.className =
-        "matrix-cell rounded transition-all duration-200 cursor-pointer bg-gray-50 hover:scale-105 hover:shadow-sm hover:z-10 min-h-0 min-w-0";
-      cell.dataset.index = i.toString();
-      container.appendChild(cell);
-    }
-  };
+      if (selectedCategory) {
+        // Apply Selected Category
+        newColor = selectedCategory.color;
+        updateCategoryUsage(selectedCategory.name);
+      } else {
+        // Cycle Logic
+        const colors = [
+          categories[0].color,
+          categories[1].color,
+          categories[2].color,
+          "#f1f5f9",
+        ];
 
-  const colorizeMatrixDemo = (container: HTMLElement): HTMLElement[] => {
-    const cells = container.querySelectorAll(
-      ".matrix-cell"
-    ) as NodeListOf<HTMLElement>;
-    cells.forEach((cell) => {
-      cell.style.backgroundColor = "#f1f5f9"; // Default background
+        // Find current color index
+        let currentIndex = colors.indexOf(currentCell.color);
+        if (currentIndex === -1) currentIndex = 3; // Default to clear if unknown color
+
+        // Move to next color
+        currentIndex = (currentIndex + 1) % colors.length;
+        newColor = colors[currentIndex];
+
+        if (currentIndex < 3) {
+          updateCategoryUsage(categories[currentIndex].name);
+        }
+      }
+
+      newCells[index] = { ...currentCell, color: newColor };
+      return newCells;
     });
-    return Array.from(cells);
   };
-
-  // Handle Cell Clicks
-  useEffect(() => {
-    if (matrixCells.length > 0) {
-      // Clean up previous listeners by cloning logic logic implicitly in React usually,
-      // but here we are working with refs. We'll rely on the ref clearing.
-      // However, to be safe, we ensure we are attaching to the current DOM nodes.
-      const freshCells = matrixDemoRef.current?.querySelectorAll(
-        ".matrix-cell"
-      ) as NodeListOf<HTMLElement>;
-
-      freshCells?.forEach((cell) => {
-        const clickHandler = () => {
-          setUserInteractions((prev) => prev + 1);
-
-          if (selectedCategory) {
-            // Apply Selected Category
-            cell.style.backgroundColor = selectedCategory.color;
-            updateCategoryUsage(selectedCategory.name);
-          } else {
-            // Cycle Logic (Original functionality)
-            const colors = [
-              categories[0].color,
-              categories[1].color,
-              categories[2].color,
-              "#f1f5f9",
-            ];
-            let currentIndex = colors.indexOf(cell.style.backgroundColor);
-            if (currentIndex === -1) currentIndex = 3;
-            currentIndex = (currentIndex + 1) % colors.length;
-            cell.style.backgroundColor = colors[currentIndex];
-
-            if (currentIndex < 3) {
-              updateCategoryUsage(categories[currentIndex].name);
-            }
-          }
-        };
-
-        cell.addEventListener("click", clickHandler);
-      });
-    }
-    // We intentionally omit `selectedCategory` and `categories` from dependency array
-    // to avoid re-attaching listeners constantly, since the logic reads current state.
-    // In a full rewrite, we'd use state for cell colors, but this preserves exact behavior.
-  }, [matrixCells, selectedCategory, categories]);
 
   const updateCategoryUsage = (categoryName: string) => {
     setCategoryUsage((prev) => {
-      const newUsage = { ...prev };
-      newUsage[categoryName] = (newUsage[categoryName] || 0) + 1;
+      const newUsage = {
+        ...prev,
+        [categoryName]: (prev[categoryName] || 0) + 1,
+      };
 
       let maxUsage = 0;
       let maxCat: string | null = null;
@@ -152,7 +119,6 @@ const HowItWorks = () => {
     });
   };
 
-  // --- Handlers ---
   const handleCategoryClick = (category: Category) => {
     setSelectedCategory(category);
   };
@@ -167,6 +133,11 @@ const HowItWorks = () => {
       setCategoryUsage((prev) => ({ ...prev, [newCategoryName]: 0 }));
     }
   };
+
+  // Calculate stats for UI to avoid repetitive calculations in render
+  const userInteractions = useMemo(() => {
+    return matrixCells.filter((c) => c.color !== "#f1f5f9").length;
+  }, [matrixCells]);
 
   return (
     <section className="py-[100px] md:py-[60px] bg-ui-bg" id="how-it-works">
@@ -326,11 +297,16 @@ const HowItWorks = () => {
                           </span>
                         ))}
                       </div>
-                      <div
-                        className="grid grid-cols-7 grid-rows-12 gap-[2px] w-full h-[240px] md:h-[360px] bg-white"
-                        id="matrixDemo"
-                        ref={matrixDemoRef}
-                      />
+                      <div className="grid grid-cols-7 grid-rows-12 gap-[2px] w-full h-[240px] md:h-[360px] bg-white">
+                        {matrixCells.map((cell, index) => (
+                          <div
+                            key={cell.id}
+                            onClick={() => handleCellClick(index)}
+                            className="matrix-cell rounded transition-all duration-200 cursor-pointer bg-gray-50 hover:scale-105 hover:shadow-sm hover:z-10 min-h-0 min-w-0"
+                            style={{ backgroundColor: cell.color }}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
