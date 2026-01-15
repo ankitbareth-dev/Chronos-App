@@ -114,7 +114,7 @@ const Navbar = () => {
           onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
         >
           <FaClock className="w-8 h-8 text-brand-500" />
-          <span>Chronos</span>
+          <a href="#hero">Chronos</a>
         </div>
 
         {/* RIGHT SIDE */}

@@ -51,7 +51,10 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden pt-[100px] pb-[50px] bg-gradient-to-br from-ui-bg to-brand-50">
+    <section
+      className="relative overflow-hidden pt-[100px] pb-[50px] bg-gradient-to-br from-ui-bg to-brand-50 "
+      id="hero"
+    >
       <div className="max-w-[1200px] mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-[60px] items-center">
         {/* Left Content */}
         <div className="text-center lg:text-left">
