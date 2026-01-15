@@ -16,7 +16,7 @@ const LazyOnView = ({ children, rootMargin = "200px" }: LazyOnViewProps) => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.disconnect(); // load once
+          observer.disconnect();
         }
       },
       { rootMargin }

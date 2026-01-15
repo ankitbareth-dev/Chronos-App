@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
-import LandingPage from "../features/landing/LandingPage";
-import { useAppSelector } from "../app/hooks";
-import { selectAuth } from "../features/auth/authSlice";
+import LandingPage from "./LandingPage";
+import { useAppSelector } from "../../app/hooks";
+import { selectAuth } from "../auth/authSlice";
 
 export const LandingPageWrapper: React.FC = () => {
   const { isAuthenticated } = useAppSelector(selectAuth);

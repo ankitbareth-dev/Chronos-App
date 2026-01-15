@@ -1,24 +1,26 @@
+import { lazy, Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { useEffect } from "react";
-import { FaSpinner } from "react-icons/fa";
-import { useAppDispatch, useAppSelector } from "./app/hooks";
 
+import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { checkAuth, selectAuth } from "./features/auth/authSlice";
-import { LandingPageWrapper } from "./components/LandingPageWrapper";
 
 import Navbar from "./components/Navbar";
+import Spinner from "./components/Spinner";
+import { LandingPageWrapper } from "./features/landing/LandingPageWrapper";
+
 import { RouteGuard } from "./utils/RouteGuard";
-import ProfilePage from "./features/profile/ProfilePage";
-import MatrixDetailsPage from "./features/matrix/MatrixDetailsPage";
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
+const ProfilePage = lazy(() => import("./features/profile/ProfilePage"));
+const MatrixDetailsPage = lazy(
+  () => import("./features/matrix/MatrixDetailsPage")
+);
 
 function App() {
   const dispatch = useAppDispatch();
@@ -28,18 +30,9 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (initialLoading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-ui-bg">
-        <div className="flex flex-col items-center gap-3">
-          <FaSpinner className="text-4xl text-brand-500 animate-spin" />
-          <p className="text-ui-muted">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
+  return initialLoading ? (
+    <Spinner />
+  ) : (
     <Router>
       <Navbar />
       <Suspense fallback={null}>
