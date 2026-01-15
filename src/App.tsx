@@ -13,7 +13,7 @@ import Navbar from "./components/Navbar";
 import Spinner from "./components/Spinner";
 import { LandingPageWrapper } from "./features/landing/LandingPageWrapper";
 
-import { RouteGuard } from "./utils/RouteGuard";
+import { RouteGuard } from "./layouts/RouteGuard";
 
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
