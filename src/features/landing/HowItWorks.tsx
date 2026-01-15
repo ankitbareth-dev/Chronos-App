@@ -8,7 +8,6 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 
-// --- Types ---
 interface Category {
   name: string;
   color: string;
@@ -33,7 +32,6 @@ const HowItWorks = () => {
   const [newCategoryColor, setNewCategoryColor] = useState("#4f46e5");
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Generate matrix state once (7 cols x 12 rows = 84 cells)
   const [matrixCells, setMatrixCells] = useState<CellData[]>(
     Array.from({ length: 84 }, (_, i) => ({ id: i, color: "#f1f5f9" }))
   );
@@ -60,8 +58,6 @@ const HowItWorks = () => {
     "5-6 PM",
   ];
 
-  // --- Handlers ---
-
   const handleCellClick = (index: number) => {
     setMatrixCells((prev) => {
       const newCells = [...prev];
@@ -69,11 +65,9 @@ const HowItWorks = () => {
       let newColor = currentCell.color;
 
       if (selectedCategory) {
-        // Apply Selected Category
         newColor = selectedCategory.color;
         updateCategoryUsage(selectedCategory.name);
       } else {
-        // Cycle Logic
         const colors = [
           categories[0].color,
           categories[1].color,
@@ -81,11 +75,9 @@ const HowItWorks = () => {
           "#f1f5f9",
         ];
 
-        // Find current color index
         let currentIndex = colors.indexOf(currentCell.color);
-        if (currentIndex === -1) currentIndex = 3; // Default to clear if unknown color
+        if (currentIndex === -1) currentIndex = 3;
 
-        // Move to next color
         currentIndex = (currentIndex + 1) % colors.length;
         newColor = colors[currentIndex];
 
@@ -134,7 +126,6 @@ const HowItWorks = () => {
     }
   };
 
-  // Calculate stats for UI to avoid repetitive calculations in render
   const userInteractions = useMemo(() => {
     return matrixCells.filter((c) => c.color !== "#f1f5f9").length;
   }, [matrixCells]);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 interface Testimonial {
@@ -8,34 +8,39 @@ interface Testimonial {
   image: string;
 }
 
+// --- FIX 1: Move data outside the component ---
+// This prevents the array from being recreated on every render,
+// which allows 'useCallback' to work perfectly.
+const testimonials: Testimonial[] = [
+  {
+    content:
+      "Chronos has completely changed how I view my time. I've identified patterns I never noticed before and increased my productive hours by 30%.",
+    author: "Sarah J.",
+    role: "Product Manager",
+    image: "https://randomuser.me/api/portraits/women/32.jpg",
+  },
+  {
+    content:
+      "As a freelancer, tracking where my time goes is crucial. Chronos makes it visual and simple. I can now see exactly how I'm spending my days.",
+    author: "Michael T.",
+    role: "Freelance Designer",
+    image: "https://randomuser.me/api/portraits/men/54.jpg",
+  },
+  {
+    content:
+      "I've tried many time tracking apps, but Chronos is the only one I've stuck with. The visual matrix makes it so satisfying to see my progress.",
+    author: "Priya K.",
+    role: "Software Engineer",
+    image: "https://randomuser.me/api/portraits/women/68.jpg",
+  },
+];
+
 const Testimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
-  const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
-  const testimonials: Testimonial[] = [
-    {
-      content:
-        "Chronos has completely changed how I view my time. I've identified patterns I never noticed before and increased my productive hours by 30%.",
-      author: "Sarah J.",
-      role: "Product Manager",
-      image: "https://randomuser.me/api/portraits/women/32.jpg",
-    },
-    {
-      content:
-        "As a freelancer, tracking where my time goes is crucial. Chronos makes it visual and simple. I can now see exactly how I'm spending my days.",
-      author: "Michael T.",
-      role: "Freelance Designer",
-      image: "https://randomuser.me/api/portraits/men/54.jpg",
-    },
-    {
-      content:
-        "I've tried many time tracking apps, but Chronos is the only one I've stuck with. The visual matrix makes it so satisfying to see my progress.",
-      author: "Priya K.",
-      role: "Software Engineer",
-      image: "https://randomuser.me/api/portraits/women/68.jpg",
-    },
-  ];
+  // --- FIX 2: Use 'number' instead of NodeJS.Timeout ---
+  const autoplayRef = useRef<number | null>(null);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -47,18 +52,18 @@ const Testimonials = () => {
     );
   };
 
-  const goToNextSlide = () => {
+  // --- FIX 3: Wrap in useCallback to stabilize the function ---
+  // Since 'testimonials' is now defined outside, this function is stable.
+  const goToNextSlide = useCallback(() => {
     setCurrentSlide((prev) =>
       prev === testimonials.length - 1 ? 0 : prev + 1
     );
-  };
+  }, []);
 
   // Setup autoplay
   useEffect(() => {
     const startAutoplay = () => {
-      autoplayRef.current = setInterval(() => {
-        goToNextSlide();
-      }, 5000);
+      autoplayRef.current = window.setInterval(goToNextSlide, 5000);
     };
 
     const stopAutoplay = () => {
@@ -82,7 +87,8 @@ const Testimonials = () => {
         sliderElement.removeEventListener("mouseleave", startAutoplay);
       }
     };
-  }, []);
+    // --- FIX 4: Add goToNextSlide to dependency array ---
+  }, [goToNextSlide]);
 
   return (
     <section className="py-[50px] bg-ui-bg" id="Testimonials">

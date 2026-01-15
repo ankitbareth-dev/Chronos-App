@@ -4,14 +4,12 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    // Changed to bg-brand-900 (Deep Ocean Blue) to match your theme
     <footer className="bg-brand-900 text-white py-5" id="footer">
       <div className="max-w-[1200px] mx-auto px-5">
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center text-center mb-4">
           {/* Logo */}
           <div className="flex items-center justify-center gap-2 text-[1.25rem] font-bold mb-1">
-            {/* Icon uses lighter brand color for contrast on dark footer */}
             <FaClock className="text-brand-400" />
             <span>Chronos</span>
           </div>
