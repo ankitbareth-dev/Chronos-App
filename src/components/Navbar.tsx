@@ -18,22 +18,17 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  // Redux State
   const { user, loading, isAuthenticated } = useAppSelector(selectAuth);
-  console.log(user?.avatarUrl, user);
 
-  // UI State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Refs
   const menuRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileBtnRef = useRef<HTMLButtonElement>(null);
 
-  // --- Mobile Menu Handlers ---
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -58,7 +53,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileMenuOpen]);
 
-  // --- User Dropdown Handlers ---
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -79,25 +73,19 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen]);
 
-  // --- Logout Handlers ---
   const handleLogoutClick = () => {
     setIsDropdownOpen(false);
     setShowLogoutModal(true);
   };
 
   const confirmLogout = () => {
-    // DO NOT close the modal here. We want to see the spinner.
-    // setShowLogoutModal(false); <--- REMOVED
-
     dispatch(logout())
       .unwrap()
       .then(() => {
-        // Only close and navigate AFTER server confirms logout
         setShowLogoutModal(false);
         navigate("/");
       })
       .catch((err) => {
-        // If logout fails, close modal and handle error
         setShowLogoutModal(false);
         console.error("Logout failed", err);
       });
@@ -147,10 +135,6 @@ const Navbar = () => {
           </nav>
         ) : (
           <div className="relative hidden md:block">
-            {/* 
-              UPDATED TRIGGER BUTTON: 
-              Rounded border with Avatar -> Name -> Arrow 
-            */}
             <button
               ref={profileBtnRef}
               onClick={toggleDropdown}
@@ -176,7 +160,6 @@ const Navbar = () => {
                 {user?.name || "User"}
               </span>
 
-              {/* 3. Arrow Icon */}
               <FaChevronDown
                 className="w-3 h-3 text-ui-muted transition-transform duration-200"
                 style={{
@@ -191,10 +174,8 @@ const Navbar = () => {
                 ref={dropdownRef}
                 className="absolute top-full right-0 mt-2 w-56 bg-ui-card rounded-xl shadow-xl border border-ui-border overflow-hidden z-50 animate-fade-in-down"
               >
-                {/* THE ARROW (Triangle) */}
                 <div className="absolute -top-2 right-4 w-4 h-4 bg-ui-card border-t border-l border-ui-border transform rotate-45"></div>
 
-                {/* 1. "Signed in as" Section */}
                 <div className="px-4 py-3 border-b border-ui-border">
                   <p className="text-xs text-ui-muted">Signed in as</p>
                   <p className="text-sm font-semibold text-ui-text truncate">
@@ -202,7 +183,6 @@ const Navbar = () => {
                   </p>
                 </div>
 
-                {/* 2. Simple List: Profile & Logout */}
                 <div className="py-1">
                   <button
                     className={menuItemClass}
