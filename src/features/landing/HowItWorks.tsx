@@ -140,7 +140,7 @@ const HowItWorks = () => {
   }, [matrixCells]);
 
   return (
-    <section className="py-[100px] md:py-[60px] bg-ui-bg" id="how-it-works">
+    <section className="py-[50px]  bg-ui-bg" id="how-it-works">
       <div className="max-w-[1200px] mx-auto px-5">
         {/* Header */}
         <div className="text-center mb-[60px]">

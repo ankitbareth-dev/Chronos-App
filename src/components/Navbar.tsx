@@ -143,11 +143,6 @@ const Navbar = () => {
                   How It Works
                 </a>
               </li>
-              <li>
-                <a href="#FAQ" className={linkClass}>
-                  FAQ
-                </a>
-              </li>
             </ul>
           </nav>
         ) : (

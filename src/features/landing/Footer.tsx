@@ -1,10 +1,4 @@
-import {
-  FaClock,
-  FaTwitter,
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-} from "react-icons/fa";
+import { FaClock, FaInstagram, FaLinkedinIn, FaGithub } from "react-icons/fa";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -30,32 +24,28 @@ const Footer = () => {
           {/* Social Links */}
           <div className="flex gap-3">
             <a
-              href="#"
-              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
-              aria-label="Twitter"
-            >
-              <FaTwitter className="text-xs" />
-            </a>
-            <a
-              href="#"
-              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
-              aria-label="Facebook"
-            >
-              <FaFacebookF className="text-xs" />
-            </a>
-            <a
-              href="#"
+              href="https://www.instagram.com/ankit_bareth_dev/"
+              target="_blank"
               className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="Instagram"
             >
               <FaInstagram className="text-xs" />
             </a>
             <a
-              href="#"
+              href="https://www.linkedin.com/in/ankit-bareth-64956035b/"
+              target="_blank"
               className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
               aria-label="LinkedIn"
             >
               <FaLinkedinIn className="text-xs" />
+            </a>
+            <a
+              href="https://github.com/ankitbareth-dev"
+              target="_blank"
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white transition-all duration-300 hover:bg-brand-500 hover:scale-110"
+              aria-label="LinkedIn"
+            >
+              <FaGithub className="text-xs" />
             </a>
           </div>
         </div>

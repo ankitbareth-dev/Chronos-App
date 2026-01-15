@@ -54,10 +54,10 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-[120px] md:py-60px]" id="features">
+    <section className="py-[50px] from-ui-bg to-brand-50" id="features">
       <div className="max-w-[1200px] mx-auto px-5">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-[60px]">
           <h2 className="text-[2.5rem] md:text-[3.5rem] font-bold mb-4 text-ui-text">
             Why Choose{" "}
             <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">

@@ -6,7 +6,6 @@ const Hero = () => {
   const navigate = useNavigate();
   const matrixAnimationRef = useRef<HTMLDivElement>(null);
 
-  // Configuration for the grid
   const cols = 7;
   const rows = 24;
   const totalCells = cols * rows;
@@ -22,27 +21,22 @@ const Hero = () => {
     const cells = container.querySelectorAll<HTMLElement>(".matrix-cell");
     const colors = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-    // Initial random colorization
     cells.forEach((cell) => {
       if (Math.random() > 0.85) {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         cell.style.backgroundColor = randomColor;
       } else {
-        cell.style.backgroundColor = "#f3f4f6"; // gray-100 equivalent
+        cell.style.backgroundColor = "#f3f4f6";
       }
     });
 
-    // Animation Loop
     const interval = setInterval(() => {
-      // Pick a random cell
       const randomCell = cells[Math.floor(Math.random() * cells.length)];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-      // Apply color and transform
       randomCell.style.backgroundColor = randomColor;
       randomCell.style.transform = "scale(1.1)";
 
-      // Reset transform and fade out color logic
       setTimeout(() => {
         randomCell.style.transform = "scale(1)";
         if (Math.random() > 0.7) {
@@ -53,18 +47,17 @@ const Hero = () => {
       }, 300);
     }, 200);
 
-    // Cleanup function is crucial for performance to stop the interval
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <section className="relative overflow-hidden pt-[100px] bg-gradient-to-br from-ui-bg to-brand-50">
+    <section className="relative overflow-hidden pt-[100px] pb-[50px] bg-gradient-to-br from-ui-bg to-brand-50">
       <div className="max-w-[1200px] mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-[60px] items-center">
         {/* Left Content */}
         <div className="text-center lg:text-left">
-          <h1 className="text-[3.5rem] leading-tight mb-6 font-bold text-ui-text">
+          <h1 className="text-[2.5rem] sm:text-[3.5rem] leading-tight mb-6 font-bold text-ui-text break-words">
             Visualize Your Time,
-            <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-600 to-brand-500 bg-clip-text text-transparent block sm:inline">
               Transform Your Life
             </span>
           </h1>
