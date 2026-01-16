@@ -8,6 +8,7 @@ import {
   FaSpinner,
   FaChevronDown,
   FaRegUser,
+  FaExclamationCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -23,6 +24,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const menuRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -76,23 +78,25 @@ const Navbar = () => {
   const handleLogoutClick = () => {
     setIsDropdownOpen(false);
     setShowLogoutModal(true);
+    setLogoutError(null); // Clear previous errors when opening
   };
 
-  const confirmLogout = () => {
-    dispatch(logout())
-      .unwrap()
-      .then(() => {
-        setShowLogoutModal(false);
-        navigate("/");
-      })
-      .catch((err) => {
-        setShowLogoutModal(false);
-        console.error("Logout failed", err);
-      });
+  const confirmLogout = async () => {
+    setLogoutError(null);
+    try {
+      await dispatch(logout()).unwrap();
+      setShowLogoutModal(false);
+      navigate("/");
+    } catch (err) {
+      const message =
+        typeof err === "string" ? "Logout failed. Please try again." : "";
+      setLogoutError(message);
+    }
   };
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
+    setLogoutError(null);
   };
 
   const handleProfileClick = () => {
@@ -108,7 +112,6 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-ui-card/90 backdrop-blur-md shadow-sm border-b border-ui-border">
       <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-        {/* LOGO */}
         <div
           className="flex items-center gap-2 text-2xl font-bold text-brand-500 cursor-pointer"
           onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
@@ -117,7 +120,6 @@ const Navbar = () => {
           <a href="#hero">Chronos</a>
         </div>
 
-        {/* RIGHT SIDE */}
         {!isAuthenticated ? (
           <nav className="hidden md:flex items-center gap-8">
             <ul className="flex gap-8">
@@ -140,7 +142,6 @@ const Navbar = () => {
               onClick={toggleDropdown}
               className="flex items-center gap-3 pr-3 pl-1 py-1 border border-ui-border rounded-full hover:bg-ui-bg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             >
-              {/* 1. Avatar */}
               <div className="w-8 h-8 rounded-full bg-ui-bg overflow-hidden flex-shrink-0">
                 {user?.avatarUrl ? (
                   <img
@@ -155,7 +156,6 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* 2. Name */}
               <span className="text-sm font-medium text-ui-text truncate max-w-[100px]">
                 {user?.name || "User"}
               </span>
@@ -168,7 +168,6 @@ const Navbar = () => {
               />
             </button>
 
-            {/* DROPDOWN MENU */}
             {isDropdownOpen && (
               <div
                 ref={dropdownRef}
@@ -205,7 +204,6 @@ const Navbar = () => {
           </div>
         )}
 
-        {/* MOBILE MENU BUTTON */}
         <button
           ref={buttonRef}
           className="md:hidden text-2xl text-ui-text focus:outline-none p-2"
@@ -216,7 +214,6 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* MOBILE MENU CONTENT */}
       <nav
         ref={menuRef}
         className={`md:hidden absolute top-full left-0 w-full bg-ui-card shadow-lg border-b border-ui-border transition-all duration-300 ease-in-out overflow-hidden ${
@@ -261,15 +258,23 @@ const Navbar = () => {
         )}
       </nav>
 
-      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <ModalPortal>
           <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-ui-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-auto">
-              <h3 className="text-xl font-bold text-ui-text mb-2">Sign out?</h3>
+              <h3 className="text-xl font-bold text-ui-text mb-2">Log out?</h3>
               <p className="text-ui-text mb-6">
                 Are you sure you want to log out?
               </p>
+
+              {/* Error Message Display */}
+              {logoutError && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm">
+                  <FaExclamationCircle className="mt-0.5 flex-shrink-0" />
+                  <span>{logoutError}</span>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
                   onClick={cancelLogout}
@@ -283,11 +288,7 @@ const Navbar = () => {
                   disabled={loading}
                   className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-70 flex items-center justify-center gap-2"
                 >
-                  {loading ? (
-                    <FaSpinner className="animate-spin" />
-                  ) : (
-                    "Sign out"
-                  )}
+                  {loading ? <FaSpinner className="animate-spin" /> : "Log out"}
                 </button>
               </div>
             </div>
