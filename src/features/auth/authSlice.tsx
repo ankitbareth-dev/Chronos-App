@@ -36,29 +36,30 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const checkAuth = createAppAsyncThunk<AuthApiResponse>(
-  "auth/checkAuth",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await fetch(`${ENV.API_BASE_URL}/api/auth/check-auth`, {
-        method: "GET",
-        credentials: "include",
-      });
+export const checkAuth = createAppAsyncThunk<
+  AuthApiResponse,
+  void,
+  { rejectValue: string }
+>("auth/checkAuth", async (_, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`${ENV.API_BASE_URL}/api/auth/check-auth`, {
+      method: "GET",
+      credentials: "include",
+    });
 
-      if (!res.ok) {
-        throw new Error("Not authenticated");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return rejectWithValue(err.message);
-      }
-      return rejectWithValue("Unexpected error occurred");
+    if (!res.ok) {
+      throw new Error("Not authenticated");
     }
+
+    const data = await res.json();
+    return data;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    return rejectWithValue("Unexpected error occurred");
   }
-);
+});
 
 export const login = createAppAsyncThunk<User, string, { rejectValue: string }>(
   "auth/login",
@@ -135,10 +136,11 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.isAuthenticated = true;
       })
-      .addCase(checkAuth.rejected, (state) => {
+      .addCase(checkAuth.rejected, (state, action) => {
         state.initialLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.error = action.payload ?? "Authentication check failed";
       })
       .addCase(login.pending, (state) => {
         state.loading = true;

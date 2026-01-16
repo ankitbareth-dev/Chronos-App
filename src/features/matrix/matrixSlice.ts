@@ -22,22 +22,23 @@ const initialState: MatrixState = {
   deletingId: null,
 };
 
-export const fetchMatrices = createAppAsyncThunk<Matrix[]>(
-  "matrix/fetchMatrices",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${ENV.API_BASE_URL}/api/matrix`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Failed to fetch matrices");
-      const data = await response.json();
-      return data.data;
-    } catch (err) {
-      return rejectWithValue("Could not load matrices");
-    }
+export const fetchMatrices = createAppAsyncThunk<
+  Matrix[],
+  void,
+  { rejectValue: string }
+>("matrix/fetchMatrices", async (_, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${ENV.API_BASE_URL}/api/matrix`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to fetch matrices");
+    const data = await response.json();
+    return data.data;
+  } catch (err) {
+    return rejectWithValue("Could not load matrices");
   }
-);
+});
 
 export const createMatrix = createAppAsyncThunk<
   Matrix,
@@ -63,7 +64,6 @@ export const createMatrix = createAppAsyncThunk<
   }
 });
 
-// NEW: Edit Matrix
 export const editMatrix = createAppAsyncThunk<
   Matrix,
   { id: string; name: string },
@@ -111,7 +111,6 @@ const matrixSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch
       .addCase(fetchMatrices.pending, (state) => {
         state.loading = true;
       })
@@ -122,11 +121,11 @@ const matrixSlice = createSlice({
       .addCase(fetchMatrices.rejected, (state) => {
         state.loading = false;
       })
-      // Create
+
       .addCase(createMatrix.fulfilled, (state, action) => {
         state.matrices.unshift(action.payload);
       })
-      // Edit (Optimistic Update)
+
       .addCase(editMatrix.fulfilled, (state, action) => {
         const index = state.matrices.findIndex(
           (m) => m.id === action.payload.id
@@ -135,7 +134,7 @@ const matrixSlice = createSlice({
           state.matrices[index].name = action.payload.name;
         }
       })
-      // Delete
+
       .addCase(deleteMatrix.pending, (state, action) => {
         state.deletingId = action.meta.arg;
       })

@@ -8,8 +8,11 @@ import {
   FaPen,
   FaCheck,
   FaTimes,
+  FaExclamationCircle,
+  FaCheckCircle,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
+import { type Matrix } from "../../features/matrix/matrixSlice";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   fetchMatrices,
@@ -19,28 +22,102 @@ import {
 } from "../../features/matrix/matrixSlice";
 import CreateMatrixModal from "../matrix/CreateMatrixModal";
 
+type ToastType = "success" | "error" | "info";
+
+interface LocalToast {
+  id: string;
+  message: string;
+  type: ToastType;
+}
+
+const ToastItem: React.FC<{ toast: LocalToast; onRemove: () => void }> = ({
+  toast,
+  onRemove,
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setIsVisible(true));
+  }, []);
+
+  const getIcon = () => {
+    switch (toast.type) {
+      case "success":
+        return <FaCheckCircle className="text-brand-500 text-xl" />;
+      case "error":
+        return <FaExclamationCircle className="text-red-500 text-xl" />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div
+      className={`
+        relative flex items-center gap-3 w-[320px] sm:w-[380px]
+        bg-ui-card border border-ui-border shadow-xl rounded-xl p-4
+        transform transition-all duration-500 ease-out
+        ${
+          isVisible
+            ? "translate-x-0 opacity-100"
+            : "translate-x-[120%] opacity-0"
+        }
+      `}
+    >
+      <div className="flex-shrink-0">{getIcon()}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-ui-text break-words leading-snug">
+          {toast.message}
+        </p>
+      </div>
+      <button
+        onClick={onRemove}
+        className="flex-shrink-0 text-ui-muted hover:text-ui-text transition-colors p-1 rounded-full hover:bg-gray-50"
+      >
+        <FaTimes className="text-xs" />
+      </button>
+    </div>
+  );
+};
+
 const Dashboard = () => {
-  const navigate = useNavigate(); // 2. Hook navigate
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { matrices, loading, deletingId } = useAppSelector(selectMatrixState);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Local State for Editing
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [toasts, setToasts] = useState<LocalToast[]>([]);
+
+  const showToast = (message: string, type: ToastType) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
 
   useEffect(() => {
-    dispatch(fetchMatrices());
+    dispatch(fetchMatrices())
+      .unwrap()
+      .catch(() => {
+        showToast("Failed to load matrices", "error");
+      });
   }, [dispatch]);
 
-  const handleDelete = (matrixId: string) => {
-    if (window.confirm("Are you sure you want to delete this matrix?")) {
-      dispatch(deleteMatrix(matrixId));
+  const handleDelete = async (matrixId: string) => {
+    try {
+      await dispatch(deleteMatrix(matrixId)).unwrap();
+      showToast("Matrix deleted successfully", "success");
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string" ? error : "Failed to delete matrix";
+      showToast(errorMessage, "error");
     }
   };
 
-  // Edit Handlers
-  const startEdit = (matrix: any) => {
+  const startEdit = (matrix: Matrix) => {
     setEditingId(matrix.id);
     setEditingName(matrix.name);
   };
@@ -53,15 +130,15 @@ const Dashboard = () => {
   const saveEdit = async () => {
     if (!editingId || !editingName.trim()) return;
 
-    const result = await dispatch(
-      editMatrix({ id: editingId, name: editingName })
-    );
-
-    if (editMatrix.fulfilled.match(result)) {
+    try {
+      await dispatch(editMatrix({ id: editingId, name: editingName })).unwrap();
+      showToast("Matrix name updated", "success");
       setEditingId(null);
       setEditingName("");
-    } else {
-      alert("Failed to update name");
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string" ? error : "Failed to update name";
+      showToast(errorMessage, "error");
     }
   };
 
@@ -77,8 +154,20 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-ui-bg pb-20 pt-28 px-4 sm:px-6 lg:px-8">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
+        {toasts.map((toast) => (
+          <div key={toast.id} className="pointer-events-auto">
+            <ToastItem
+              toast={toast}
+              onRemove={() =>
+                setToasts((prev) => prev.filter((t) => t.id !== toast.id))
+              }
+            />
+          </div>
+        ))}
+      </div>
+
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-10 gap-4">
           {!isEmpty && (
             <button
@@ -90,7 +179,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* --- Loading State --- */}
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((n) => (
@@ -106,7 +194,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* --- Empty State --- */}
         {isEmpty && (
           <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-ui-card rounded-2xl border border-ui-border shadow-sm relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-100/50 rounded-full blur-3xl -z-10"></div>
@@ -129,24 +216,19 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* --- Matrix Grid --- */}
         {!loading && !isEmpty && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {matrices.map((matrix) => (
-              // 3. ADD CURSOR POINTER and ON CLICK to navigate
               <div
                 key={matrix.id}
                 onClick={() => navigate(`/dashboard/matrix/${matrix.id}`)}
                 className="bg-ui-card rounded-xl shadow-sm border border-ui-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden flex flex-col justify-between h-full cursor-pointer"
               >
-                {/* Top Accent Bar */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-brand-400 to-brand-600"></div>
 
                 <div className="p-6 flex-1 flex flex-col">
-                  {/* Header Area */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1 pr-2">
-                      {/* Title vs Edit Input */}
                       {editingId === matrix.id ? (
                         <div className="flex items-center gap-2 mb-1">
                           <input
@@ -159,7 +241,7 @@ const Dashboard = () => {
                           />
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // 4. STOP PROPAGATION
+                              e.stopPropagation();
                               saveEdit();
                             }}
                             className="text-brand-500 hover:bg-brand-50 p-1 rounded"
@@ -168,7 +250,7 @@ const Dashboard = () => {
                           </button>
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // 4. STOP PROPAGATION
+                              e.stopPropagation();
                               cancelEdit();
                             }}
                             className="text-ui-muted hover:text-red-500 hover:bg-red-50 p-1 rounded"
@@ -183,7 +265,7 @@ const Dashboard = () => {
                           </h3>
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // 4. STOP PROPAGATION
+                              e.stopPropagation();
                               startEdit(matrix);
                             }}
                             className="text-ui-muted hover:text-brand-500 hover:bg-brand-50 p-1.5 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
@@ -195,10 +277,9 @@ const Dashboard = () => {
                       )}
                     </div>
 
-                    {/* Delete Action */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // 4. STOP PROPAGATION
+                        e.stopPropagation();
                         handleDelete(matrix.id);
                       }}
                       disabled={deletingId === matrix.id}
@@ -213,7 +294,6 @@ const Dashboard = () => {
                     </button>
                   </div>
 
-                  {/* Details */}
                   <div className="mt-auto space-y-3">
                     <div className="flex items-center gap-3 text-sm text-ui-muted">
                       <FaCalendarAlt className="text-brand-500 w-4" />
@@ -227,7 +307,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Mobile FAB */}
       {isEmpty && (
         <button
           onClick={() => setIsCreateModalOpen(true)}
@@ -237,7 +316,6 @@ const Dashboard = () => {
         </button>
       )}
 
-      {/* Modals */}
       <CreateMatrixModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
