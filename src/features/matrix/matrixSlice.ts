@@ -35,14 +35,17 @@ export const fetchMatrices = createAppAsyncThunk<
     if (!response.ok) throw new Error("Failed to fetch matrices");
     const data = await response.json();
     return data.data;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
     return rejectWithValue("Could not load matrices");
   }
 });
 
 export const createMatrix = createAppAsyncThunk<
   Matrix,
-  any,
+  void,
   { rejectValue: string }
 >("matrix/createMatrix", async (matrixData, { rejectWithValue }) => {
   try {
@@ -59,7 +62,10 @@ export const createMatrix = createAppAsyncThunk<
     }
     const data = await response.json();
     return data.data;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
     return rejectWithValue("Network error");
   }
 });
@@ -83,7 +89,10 @@ export const editMatrix = createAppAsyncThunk<
 
     const data = await response.json();
     return data.data;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
     return rejectWithValue("Could not update matrix");
   }
 });
@@ -100,7 +109,10 @@ export const deleteMatrix = createAppAsyncThunk<
     });
     if (!response.ok) throw new Error("Failed to delete");
     return;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
     return rejectWithValue("Could not delete matrix");
   }
 });

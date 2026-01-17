@@ -8,8 +8,6 @@ import {
   FaPen,
   FaCheck,
   FaTimes,
-  FaExclamationCircle,
-  FaCheckCircle,
 } from "react-icons/fa";
 import { type Matrix } from "../../features/matrix/matrixSlice";
 import { useNavigate } from "react-router-dom";
@@ -21,64 +19,11 @@ import {
   selectMatrixState,
 } from "../../features/matrix/matrixSlice";
 import CreateMatrixModal from "../matrix/CreateMatrixModal";
-
-type ToastType = "success" | "error" | "info";
-
-interface LocalToast {
-  id: string;
-  message: string;
-  type: ToastType;
-}
-
-const ToastItem: React.FC<{ toast: LocalToast; onRemove: () => void }> = ({
-  toast,
-  onRemove,
-}) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setIsVisible(true));
-  }, []);
-
-  const getIcon = () => {
-    switch (toast.type) {
-      case "success":
-        return <FaCheckCircle className="text-brand-500 text-xl" />;
-      case "error":
-        return <FaExclamationCircle className="text-red-500 text-xl" />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div
-      className={`
-        relative flex items-center gap-3 w-[320px] sm:w-[380px]
-        bg-ui-card border border-ui-border shadow-xl rounded-xl p-4
-        transform transition-all duration-500 ease-out
-        ${
-          isVisible
-            ? "translate-x-0 opacity-100"
-            : "translate-x-[120%] opacity-0"
-        }
-      `}
-    >
-      <div className="flex-shrink-0">{getIcon()}</div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-ui-text break-words leading-snug">
-          {toast.message}
-        </p>
-      </div>
-      <button
-        onClick={onRemove}
-        className="flex-shrink-0 text-ui-muted hover:text-ui-text transition-colors p-1 rounded-full hover:bg-gray-50"
-      >
-        <FaTimes className="text-xs" />
-      </button>
-    </div>
-  );
-};
+import {
+  ToastItem,
+  type LocalToast,
+  type ToastType,
+} from "../../components/Toast";
 
 const Dashboard = () => {
   const navigate = useNavigate();
