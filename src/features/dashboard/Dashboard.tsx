@@ -19,7 +19,7 @@ import {
   editMatrix,
   selectMatrixState,
 } from "../../features/matrix/matrixSlice";
-import CreateMatrixModal from "../matrix/CreateMatrixModal";
+import CreateMatrixModal from "./CreateMatrixModal";
 import ModalPortal from "../../components/ModalPortal";
 import {
   ToastItem,
@@ -230,7 +230,6 @@ const Dashboard = () => {
                               e.stopPropagation();
                               startEdit(matrix);
                             }}
-                            // Issue Fix 2: Removed opacity-0 group-hover:opacity-100 for mobile access
                             className="text-ui-muted hover:text-brand-500 hover:bg-brand-50 p-1.5 rounded-lg transition-all"
                             title="Edit Name"
                           >
@@ -246,7 +245,6 @@ const Dashboard = () => {
                         initiateDelete(matrix.id);
                       }}
                       disabled={deletingId === matrix.id}
-                      // Issue Fix 2: Removed opacity-0 group-hover:opacity-100 for mobile access
                       className="text-ui-muted hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all disabled:opacity-50"
                       title="Delete Matrix"
                     >

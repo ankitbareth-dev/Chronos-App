@@ -45,7 +45,14 @@ export const fetchMatrices = createAppAsyncThunk<
 
 export const createMatrix = createAppAsyncThunk<
   Matrix,
-  void,
+  {
+    name: string;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    interval: number;
+  },
   { rejectValue: string }
 >("matrix/createMatrix", async (matrixData, { rejectWithValue }) => {
   try {

@@ -60,7 +60,10 @@ export const updateProfile = createAppAsyncThunk<
 
     const data = await response.json();
     return data.data;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
     return rejectWithValue("Network error. Please try again.");
   }
 });
@@ -83,7 +86,7 @@ const profileSlice = createSlice({
         state.error = null;
         state.successMessage = null;
       })
-      .addCase(updateProfile.fulfilled, (state, action) => {
+      .addCase(updateProfile.fulfilled, (state) => {
         state.loading = false;
         state.successMessage = "Profile updated successfully!";
       })

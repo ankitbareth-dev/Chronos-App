@@ -1,7 +1,16 @@
-import { useState, useEffect } from "react";
-import { FaTimes, FaSpinner } from "react-icons/fa";
+import { useState } from "react";
+import { FaTimes, FaSpinner, FaExclamationCircle } from "react-icons/fa";
 import { useAppDispatch } from "../../app/hooks";
-import { createMatrix } from "../../features/matrix/matrixSlice";
+import { createMatrix } from "../matrix/matrixSlice";
+
+interface MatrixFormData {
+  name: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  interval: number;
+}
 
 interface Props {
   isOpen: boolean;
@@ -11,48 +20,58 @@ interface Props {
 const CreateMatrixModal = ({ isOpen, onClose }: Props) => {
   const dispatch = useAppDispatch();
 
-  // Form State
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<MatrixFormData>({
     name: "",
-    startDate: new Date().toISOString().split("T")[0], // Today
+    startDate: new Date().toISOString().split("T")[0],
     endDate: "",
     startTime: "09:00",
     endTime: "18:00",
-    interval: 60, // Default 1 hour
+    interval: 60,
   });
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setFormData({
-        name: "",
-        startDate: new Date().toISOString().split("T")[0],
-        endDate: "",
-        startTime: "09:00",
-        endTime: "18:00",
-        interval: 60,
-      });
-      setLoading(false);
-    }
-  }, [isOpen]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+
+      [name]: name === "interval" ? Number(value) : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
 
-    const result = await dispatch(createMatrix(formData));
+    if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      setError("End date cannot be before start date.");
+      setLoading(false);
+      return;
+    }
 
-    if (createMatrix.fulfilled.match(result)) {
+    try {
+      const resultAction = await dispatch(createMatrix(formData));
+
+      if (createMatrix.rejected.match(resultAction)) {
+        const errorMessage = resultAction.payload || "Failed to create matrix.";
+        setError(
+          typeof errorMessage === "string" ? errorMessage : "Unknown error"
+        );
+        setLoading(false);
+      } else {
+        setLoading(false);
+        onClose();
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError("An unexpected error occurred.");
+      }
+
       setLoading(false);
-      onClose();
-    } else {
-      setLoading(false);
-      alert("Failed to create matrix. Please check inputs.");
     }
   };
 
@@ -75,6 +94,14 @@ const CreateMatrixModal = ({ isOpen, onClose }: Props) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-start gap-2 border border-red-100">
+              <FaExclamationCircle className="mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-ui-text mb-1">
