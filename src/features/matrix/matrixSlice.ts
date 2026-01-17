@@ -147,7 +147,7 @@ const matrixSlice = createSlice({
 
       .addCase(editMatrix.fulfilled, (state, action) => {
         const index = state.matrices.findIndex(
-          (m) => m.id === action.payload.id
+          (m) => m.id === action.payload.id,
         );
         if (index !== -1) {
           state.matrices[index].name = action.payload.name;

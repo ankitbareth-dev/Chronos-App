@@ -19,7 +19,7 @@ const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 const ProfilePage = lazy(() => import("./features/profile/ProfilePage"));
 const MatrixDetailsPage = lazy(
-  () => import("./features/matrix/MatrixDetailsPage")
+  () => import("./features/matrix/MatrixDetailsPage"),
 );
 
 function App() {

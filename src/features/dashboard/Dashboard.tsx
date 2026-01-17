@@ -10,7 +10,7 @@ import {
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { type Matrix } from "../../features/matrix/matrixSlice";
+import { type Matrix } from "../matrix/matrixSlice";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
@@ -18,8 +18,8 @@ import {
   deleteMatrix,
   editMatrix,
   selectMatrixState,
-} from "../../features/matrix/matrixSlice";
-import CreateMatrixModal from "./CreateMatrixModal";
+} from "../matrix/matrixSlice";
+import CreateMatrixModal from "../matrix/CreateMatrixModal";
 import ModalPortal from "../../components/ModalPortal";
 import {
   ToastItem,

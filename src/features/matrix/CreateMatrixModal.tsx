@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaTimes, FaSpinner, FaExclamationCircle } from "react-icons/fa";
 import { useAppDispatch } from "../../app/hooks";
-import { createMatrix } from "../matrix/matrixSlice";
+import { createMatrix } from "./matrixSlice";
 
 interface MatrixFormData {
   name: string;
@@ -59,7 +59,7 @@ const CreateMatrixModal = ({ isOpen, onClose }: Props) => {
       if (createMatrix.rejected.match(resultAction)) {
         const errorMessage = resultAction.payload || "Failed to create matrix.";
         setError(
-          typeof errorMessage === "string" ? errorMessage : "Unknown error"
+          typeof errorMessage === "string" ? errorMessage : "Unknown error",
         );
         setLoading(false);
       } else {
