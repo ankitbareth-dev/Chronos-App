@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   FaSpinner,
   FaExclamationTriangle,
@@ -21,9 +21,20 @@ import type { Category } from "../categories/categorySlice";
 interface Props {
   matrixId: string;
   selectedCategory: Category | null;
+  localEdits: Map<number, string>;
+  setLocalEdits: React.Dispatch<React.SetStateAction<Map<number, string>>>;
+  hasChanges: boolean;
+  setHasChanges: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MatrixGrid = ({ matrixId, selectedCategory }: Props) => {
+const MatrixGrid = ({
+  matrixId,
+  selectedCategory,
+  localEdits,
+  setLocalEdits,
+  hasChanges,
+  setHasChanges,
+}: Props) => {
   const dispatch = useAppDispatch();
   const { data, loading, error } = useAppSelector(selectMatrixDataState);
   const {
@@ -31,9 +42,6 @@ const MatrixGrid = ({ matrixId, selectedCategory }: Props) => {
     loading: cellsLoading,
     saving,
   } = useAppSelector(selectCellState);
-
-  const [localEdits, setLocalEdits] = useState(new Map<number, string>());
-  const [hasChanges, setHasChanges] = useState(false);
 
   const cellsToRender = useMemo(() => {
     const map = new Map<number, string>();
