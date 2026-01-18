@@ -35,9 +35,11 @@ const PRESET_COLORS = [
 
 interface Props {
   matrixId: string;
+  activeCategoryId?: string | null;
+  onSelect?: (category: Category | null) => void;
 }
 
-const CategoryList = ({ matrixId }: Props) => {
+const CategoryList = ({ matrixId, activeCategoryId, onSelect }: Props) => {
   const dispatch = useAppDispatch();
   const { categories, loading, error } = useAppSelector(selectCategoryState);
 
@@ -53,6 +55,14 @@ const CategoryList = ({ matrixId }: Props) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [toasts, setToasts] = useState<LocalToast[]>([]);
+
+  const handleCategoryClick = (cat: Category) => {
+    if (activeCategoryId === cat.id) {
+      onSelect?.(null);
+    } else {
+      onSelect?.(cat);
+    }
+  };
 
   const showToast = (message: string, type: ToastType) => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -222,7 +232,12 @@ const CategoryList = ({ matrixId }: Props) => {
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full border border-ui-border/50 text-sm font-medium transition-all hover:shadow-md"
+              onClick={() => handleCategoryClick(cat)}
+              className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all hover:shadow-md cursor-pointer ${
+                activeCategoryId === cat.id
+                  ? "ring-2 ring-brand-200 border-brand-500"
+                  : "border-ui-border/50"
+              }`}
               style={{
                 backgroundColor: `${cat.color}15`,
                 color: cat.color,
@@ -237,7 +252,10 @@ const CategoryList = ({ matrixId }: Props) => {
               <div className="flex items-center gap-1 pl-1 border-l border-black/10">
                 {/* Edit Button */}
                 <button
-                  onClick={() => openEditModal(cat)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEditModal(cat);
+                  }}
                   className="opacity-60 hover:opacity-100 p-1.5 rounded-full hover:bg-white/20 transition-all"
                   title="Edit Category"
                 >
@@ -246,7 +264,10 @@ const CategoryList = ({ matrixId }: Props) => {
 
                 {/* Delete Button on Item */}
                 <button
-                  onClick={() => promptDelete(cat)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    promptDelete(cat);
+                  }}
                   disabled={deletingId === cat.id}
                   className="opacity-60 hover:opacity-100 p-1.5 rounded-full hover:bg-red-500 hover:text-white hover:border-red-500 transition-all disabled:opacity-50"
                   title="Delete Category"
