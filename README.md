@@ -1,73 +1,181 @@
-# React + TypeScript + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# ⏳ Chronos
 
-Currently, two official plugins are available:
+**Visualize your time, master your life.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![React](https://img.shields.io/badge/React-20232A-blue?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-593D88?style=for-the-badge&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
 
-## React Compiler
+Chronos is an intuitive time-tracking application frontend that transforms your schedule into a visual matrix. It features a highly responsive UI, real-time state management, and dynamic visualizations.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+</div>
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🌟 Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **📅 Dynamic Matrix Generation**
+  - Generates grid layouts based on API data (Date range, intervals).
+  - Supports custom intervals (15, 30, 60 mins).
+- **🎨 Smart Category System**
+  - Create, Edit, and Delete color-coded categories.
+  - Reactive list updates with toast notifications.
+- **🖱️ Interactive Grid Experience**
+  - Optimistic UI filling (changes appear instantly).
+  - Toggle functionality (Click to fill, Click again to unfill).
+  - Real-time "Unsaved changes" detection and persistence.
+- **📊 Live Analytics**
+  - Real-time stats calculation as you interact with the grid.
+  - Visualizes completion percentage and category distribution.
+- **⚡ Performance Optimized**
+  - Code splitting using `React.lazy` and `LazyOnView` for faster initial load.
+  - Derived state pattern using `useMemo` to prevent unnecessary re-renders.
+- **📱 Fully Responsive**
+  - Mobile-first design with sticky headers and scrollable grid containers.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛠️ Tech Stack
+
+- **React 18** with Hooks (`useEffect`, `useMemo`, `useLayoutEffect`)
+- **Redux Toolkit** for global state management (Auth, Matrix, Cells, Categories)
+- **React Router v6** for client-side routing
+- **Tailwind CSS** with custom design tokens for styling
+- **React Icons** for iconography
+- **Zod** (Validation schemas import)
+
+---
+
+## 📸 Screenshots
+
+_(Add your screenshots here)_
+
+- **Dashboard:** View and manage matrices.
+- **Matrix Details:** Interactive grid with category controls.
+- **Analytics:** Real-time cards.
+
+---
+
+## ⚙️ Installation
+
+**Prerequisites:**
+
+- Node.js installed.
+- Backend API running (ensure backend server is available).
+
+1.  **Clone the repository**
+
+    ```bash
+    git clone https://github.com/yourusername/chronos.git
+    cd chronos
+    ```
+
+2.  **Navigate to Client and Install Dependencies**
+
+    ```bash
+    cd client
+    npm install
+    ```
+
+3.  **Set up Environment Variables**
+
+    Create a `.env` file in the `client` root directory:
+
+    ```env
+    VITE_API_BASE_URL=http://localhost:5000/api
+    ```
+
+4.  **Start the Development Server**
+
+    ```bash
+    npm run dev
+    ```
+
+    The application will open at `http://localhost:3000` (or your configured port).
+
+---
+
+## 📖 Usage Guide
+
+1.  **Authentication**
+    - Sign up or log in to access your dashboard.
+2.  **Create a Matrix**
+    - Navigate to the Dashboard and click "New Matrix".
+    - Define the time range and interval.
+3.  **Manage Categories**
+    - Go to Matrix Details.
+    - Add/Select categories to define your activities.
+4.  **Fill the Grid**
+    - Select a category to enable the grid.
+    - Click cells to fill them.
+    - Click filled cells to toggle (unfill) them.
+    - Click "Save Changes" to persist data to the API.
+5.  **View Stats**
+    - Observe the statistics cards update in real-time as you fill the grid.
+
+---
+
+## 📂 Project Structure (Frontend)
+
+```
+client/
+├── public/                 # Static assets
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── ModalPortal.tsx
+│   │   ├── LazyOnView.tsx
+│   │   └── Toast.tsx
+│   ├── features/           # Redux Feature Modules
+│   │   ├── auth/            # Authentication Slice
+│   │   ├── matrix/          # Matrix (Header data) Slice
+│   │   ├── category/        # Category Slice & List
+│   │   └── cell/            # Cell Data Slice
+│   ├── layouts/            # Page Layouts
+│   │   └── RouteGuard.tsx
+│   ├── pages/              # Main Page Components
+│   │   ├── LandingPage.tsx
+│   │   ├── Dashboard.tsx
+│   │   └── MatrixDetailsPage.tsx
+│   ├── app/
+│   │   ├── hooks.ts         # Custom hooks
+│   │   ├── store.ts         # Redux Store Configuration
+│   │   └── withTypes.ts     # Type definitions for Redux
+│   ├── index.css           # Global CSS & Tailwind imports
+│   └── main.tsx           # Application Entry Point
+├── tailwind.config.js      # Tailwind Configuration
+└── vite.config.ts        # Vite Configuration
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🗺️ Roadmap
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [ ] Dark Mode
+- [ ] Data Export (CSV/PDF)
+- [ ] Search & Filter Matrices
+- [ ] Mobile App (React Native)
+
+---
+
+## 🤝 Contributing
+
+1.  Fork the project.
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes.
+4.  Push to the branch.
+5.  Open a Pull Request.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License.
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by [Your Name]</sub>
+</div>
