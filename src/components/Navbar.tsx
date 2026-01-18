@@ -9,8 +9,9 @@ import {
   FaChevronDown,
   FaRegUser,
   FaExclamationCircle,
+  FaTachometerAlt,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, selectAuth } from "../features/auth/authSlice";
 import ModalPortal from "./ModalPortal";
@@ -78,7 +79,7 @@ const Navbar = () => {
   const handleLogoutClick = () => {
     setIsDropdownOpen(false);
     setShowLogoutModal(true);
-    setLogoutError(null); // Clear previous errors when opening
+    setLogoutError(null);
   };
 
   const confirmLogout = async () => {
@@ -99,8 +100,9 @@ const Navbar = () => {
     setLogoutError(null);
   };
 
-  const handleProfileClick = () => {
-    navigate("/profile");
+  const handleDropdownNavigate = (path: string) => {
+    setIsDropdownOpen(false);
+    navigate(path);
   };
 
   const linkClass =
@@ -117,7 +119,7 @@ const Navbar = () => {
           onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
         >
           <FaClock className="w-8 h-8 text-brand-500" />
-          <a href="#hero">Chronos</a>
+          <Link to={"/dashboard"}>Chronos</Link>
         </div>
 
         {!isAuthenticated ? (
@@ -185,12 +187,19 @@ const Navbar = () => {
                 <div className="py-1">
                   <button
                     className={menuItemClass}
-                    onClick={handleProfileClick}
+                    onClick={() => handleDropdownNavigate("/profile")}
                   >
                     <FaRegUser className="text-ui-muted w-5" />
                     <span>Profile</span>
                   </button>
 
+                  <button
+                    className={menuItemClass}
+                    onClick={() => handleDropdownNavigate("/dashboard")}
+                  >
+                    <FaTachometerAlt className="text-ui-muted w-5" />
+                    <span>Dashboard</span>
+                  </button>
                   <button
                     onClick={handleLogoutClick}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50/50 transition-colors text-left"
@@ -237,7 +246,15 @@ const Navbar = () => {
           <ul className="flex flex-col gap-4 px-5">
             <li className="flex items-center gap-3 p-2 border-b border-ui-border">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-ui-bg flex items-center justify-center text-ui-muted">
-                <FaUser />
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="User"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FaUser />
+                )}
               </div>
               <div>
                 <p className="text-sm font-bold text-ui-text">
@@ -245,6 +262,30 @@ const Navbar = () => {
                 </p>
                 <p className="text-xs text-ui-muted">{user?.email}</p>
               </div>
+            </li>
+            <li>
+              <button
+                onClick={() => {
+                  closeMenu();
+                  navigate("/dashboard");
+                }}
+                className={linkClass + " flex items-center gap-2"}
+              >
+                <FaTachometerAlt /> Dashboard
+              </button>
+            </li>
+
+            {/* Profile */}
+            <li>
+              <button
+                onClick={() => {
+                  closeMenu();
+                  navigate("/profile");
+                }}
+                className={linkClass + " flex items-center gap-2"}
+              >
+                <FaRegUser /> Profile
+              </button>
             </li>
             <li>
               <button
