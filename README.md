@@ -49,16 +49,6 @@ Chronos is an intuitive time-tracking application frontend that transforms your 
 
 ---
 
-## 📸 Screenshots
-
-_(Add your screenshots here)_
-
-- **Dashboard:** View and manage matrices.
-- **Matrix Details:** Interactive grid with category controls.
-- **Analytics:** Real-time cards.
-
----
-
 ## ⚙️ Installation
 
 **Prerequisites:**
@@ -118,37 +108,6 @@ _(Add your screenshots here)_
 
 ---
 
-## 📂 Project Structure (Frontend)
-
-```
-client/
-├── public/                 # Static assets
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── ModalPortal.tsx
-│   │   ├── LazyOnView.tsx
-│   │   └── Toast.tsx
-│   ├── features/           # Redux Feature Modules
-│   │   ├── auth/            # Authentication Slice
-│   │   ├── matrix/          # Matrix (Header data) Slice
-│   │   ├── category/        # Category Slice & List
-│   │   └── cell/            # Cell Data Slice
-│   ├── layouts/            # Page Layouts
-│   │   └── RouteGuard.tsx
-│   ├── pages/              # Main Page Components
-│   │   ├── LandingPage.tsx
-│   │   ├── Dashboard.tsx
-│   │   └── MatrixDetailsPage.tsx
-│   ├── app/
-│   │   ├── hooks.ts         # Custom hooks
-│   │   ├── store.ts         # Redux Store Configuration
-│   │   └── withTypes.ts     # Type definitions for Redux
-│   ├── index.css           # Global CSS & Tailwind imports
-│   └── main.tsx           # Application Entry Point
-├── tailwind.config.js      # Tailwind Configuration
-└── vite.config.ts        # Vite Configuration
-```
-
 ---
 
 ## 🗺️ Roadmap
@@ -177,5 +136,5 @@ Distributed under the MIT License.
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by [Your Name]</sub>
+  <sub>Built with ❤️ by Ankit Bareth</sub>
 </div>
