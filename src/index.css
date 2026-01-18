@@ -8,6 +8,9 @@
     scroll-behavior: smooth;
     scroll-padding-top: 80px;
   }
+  html {
+    scroll-snap-type: none !important;
+  }
 
   html::-webkit-scrollbar,
   body::-webkit-scrollbar {
@@ -37,4 +40,5 @@
 
 body {
   @apply font-sans bg-ui-bg text-ui-text antialiased;
+  scroll-snap-type: none !important;
 }

@@ -13,19 +13,43 @@ const LandingPage = () => {
       <Hero />
       <Suspense fallback={null}>
         <LazyOnView>
-          <Features />
+          <Suspense
+            fallback={
+              <div className="h-[500px] w-full bg-ui-bg animate-pulse" />
+            }
+          >
+            <Features />
+          </Suspense>
         </LazyOnView>
 
         <LazyOnView>
-          <HowItWorks />
+          <Suspense
+            fallback={
+              <div className="h-[600px] w-full bg-ui-bg animate-pulse" />
+            }
+          >
+            <HowItWorks />
+          </Suspense>
         </LazyOnView>
 
         <LazyOnView>
-          <Testimonials />
+          <Suspense
+            fallback={
+              <div className="h-[700px] w-full bg-ui-bg animate-pulse" />
+            }
+          >
+            <Testimonials />
+          </Suspense>
         </LazyOnView>
 
         <LazyOnView rootMargin="0px">
-          <Footer />
+          <Suspense
+            fallback={
+              <div className="h-[300px] w-full bg-ui-bg animate-pulse" />
+            }
+          >
+            <Footer />
+          </Suspense>
         </LazyOnView>
       </Suspense>
     </>

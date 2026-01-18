@@ -8,9 +8,6 @@ interface Testimonial {
   image: string;
 }
 
-// --- FIX 1: Move data outside the component ---
-// This prevents the array from being recreated on every render,
-// which allows 'useCallback' to work perfectly.
 const testimonials: Testimonial[] = [
   {
     content:
@@ -48,15 +45,13 @@ const Testimonials = () => {
 
   const goToPrevSlide = () => {
     setCurrentSlide((prev) =>
-      prev === 0 ? testimonials.length - 1 : prev - 1
+      prev === 0 ? testimonials.length - 1 : prev - 1,
     );
   };
 
-  // --- FIX 3: Wrap in useCallback to stabilize the function ---
-  // Since 'testimonials' is now defined outside, this function is stable.
   const goToNextSlide = useCallback(() => {
     setCurrentSlide((prev) =>
-      prev === testimonials.length - 1 ? 0 : prev + 1
+      prev === testimonials.length - 1 ? 0 : prev + 1,
     );
   }, []);
 
