@@ -37,9 +37,15 @@ interface Props {
   matrixId: string;
   activeCategoryId?: string | null;
   onSelect?: (category: Category | null) => void;
+  onCategoryDeleted?: () => void;
 }
 
-const CategoryList = ({ matrixId, activeCategoryId, onSelect }: Props) => {
+const CategoryList = ({
+  matrixId,
+  activeCategoryId,
+  onSelect,
+  onCategoryDeleted,
+}: Props) => {
   const dispatch = useAppDispatch();
   const { categories, loading, error } = useAppSelector(selectCategoryState);
 
@@ -164,6 +170,10 @@ const CategoryList = ({ matrixId, activeCategoryId, onSelect }: Props) => {
         }),
       ).unwrap();
       showToast("Category deleted", "success");
+
+      if (onCategoryDeleted) {
+        onCategoryDeleted();
+      }
 
       setConfirmDeleteId(null);
     } catch (err) {

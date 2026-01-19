@@ -63,6 +63,10 @@ const MatrixDetailsPage = () => {
     return Math.floor(datesCount * slotCount);
   }, [data]);
 
+  const handleCategoryDeleted = () => {
+    dispatch(fetchCells(id!));
+  };
+
   if (!id) return null;
 
   return (
@@ -72,6 +76,7 @@ const MatrixDetailsPage = () => {
           matrixId={id}
           activeCategoryId={selectedCategory?.id}
           onSelect={setSelectedCategory}
+          onCategoryDeleted={handleCategoryDeleted}
         />
 
         {!loading && !cellsLoading && data && (
