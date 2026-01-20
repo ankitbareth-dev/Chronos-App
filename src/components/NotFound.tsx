@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaClock, FaGhost, FaHome, FaArrowLeft } from "react-icons/fa";
 
@@ -16,12 +17,9 @@ const NotFound: React.FC = () => {
     }
   };
 
-  const handleSecondaryAction = () => {
-    navigate("/");
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-ui-bg text-ui-text relative overflow-hidden font-sans antialiased selection:bg-brand-100 selection:text-brand-900 z-50">
+      {/* Ambient Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute top-1/4 left-1/4 w-64 h-64 bg-brand-400/10 rounded-full blur-3xl animate-float"
@@ -36,6 +34,7 @@ const NotFound: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-category-green/5 rounded-full blur-3xl animate-pulse-slow"></div>
       </div>
 
+      {/* Main Content Card */}
       <div className="relative z-10 bg-ui-card/90 backdrop-blur-xl border border-ui-border p-6 md:p-10 rounded-3xl shadow-2xl max-w-lg w-[90%] mx-4 text-center flex flex-col items-center">
         <div className="relative mb-8 group cursor-default">
           <div className="absolute inset-0 bg-brand-500/20 rounded-full blur-xl group-hover:bg-brand-500/30 transition-all duration-500"></div>
@@ -57,10 +56,11 @@ const NotFound: React.FC = () => {
           The page or resource you are looking for is currently unavailable.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full">
+        {/* Single Conditional Button */}
+        <div className="w-full flex justify-center">
           <button
             onClick={handlePrimaryAction}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-brand-500 text-white font-semibold shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/40 transition-all duration-300 active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-brand-500 text-white font-semibold shadow-lg shadow-brand-500/30 hover:bg-brand-600 hover:shadow-brand-600/40 transition-all duration-300 active:scale-95"
           >
             {isAuthenticated ? (
               <>
@@ -74,15 +74,9 @@ const NotFound: React.FC = () => {
               </>
             )}
           </button>
-
-          <button
-            onClick={handleSecondaryAction}
-            className="flex-1 px-6 py-3.5 rounded-xl border border-ui-border text-ui-text font-semibold hover:bg-ui-bg hover:border-brand-300 hover:text-brand-600 transition-all duration-300 active:scale-95"
-          >
-            Home
-          </button>
         </div>
 
+        {/* Decorative "Matrix" Grid Lines */}
         <div className="mt-8 w-full grid grid-cols-8 gap-1 opacity-20">
           {Array.from({ length: 16 }).map((_, i) => (
             <div
@@ -97,6 +91,7 @@ const NotFound: React.FC = () => {
         Chronos &copy; {new Date().getFullYear()}
       </div>
 
+      {/* Custom Styles */}
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) translateX(0); }
