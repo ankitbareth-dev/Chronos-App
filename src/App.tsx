@@ -11,10 +11,10 @@ import { checkAuth, selectAuth } from "./features/auth/authSlice";
 
 import Navbar from "./components/Navbar";
 import Spinner from "./components/Spinner";
-import { LandingPageWrapper } from "./features/landing/LandingPageWrapper";
 
-import { RouteGuard } from "./layouts/RouteGuard";
+import RouteGuard from "./layouts/RouteGuard";
 
+const LandingPage = lazy(() => import("./features/landing/LandingPage"));
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
 const Dashboard = lazy(() => import("./features/dashboard/Dashboard"));
 const ProfilePage = lazy(() => import("./features/profile/ProfilePage"));
@@ -22,7 +22,7 @@ const MatrixDetailsPage = lazy(
   () => import("./features/matrix/MatrixDetailsPage"),
 );
 
-function App() {
+const App = () => {
   const dispatch = useAppDispatch();
   const { initialLoading } = useAppSelector(selectAuth);
 
@@ -39,9 +39,8 @@ function App() {
         <Routes>
           <Route element={<RouteGuard requireAuth={false} />}>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<LandingPage />} />
           </Route>
-
-          <Route path="/" element={<LandingPageWrapper />} />
 
           <Route element={<RouteGuard requireAuth={true} />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -57,6 +56,6 @@ function App() {
       </Suspense>
     </Router>
   );
-}
+};
 
 export default App;

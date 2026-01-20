@@ -6,7 +6,7 @@ type RouteGuardProps = {
   requireAuth: boolean;
 };
 
-export const RouteGuard: React.FC<RouteGuardProps> = ({ requireAuth }) => {
+const RouteGuard: React.FC<RouteGuardProps> = ({ requireAuth }) => {
   const { isAuthenticated } = useAppSelector(selectAuth);
   const location = useLocation();
 
@@ -20,3 +20,4 @@ export const RouteGuard: React.FC<RouteGuardProps> = ({ requireAuth }) => {
 
   return <Outlet />;
 };
+export default RouteGuard;
