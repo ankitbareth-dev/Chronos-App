@@ -19,7 +19,7 @@ const LazyOnView = ({ children, rootMargin = "200px" }: LazyOnViewProps) => {
           observer.disconnect();
         }
       },
-      { rootMargin }
+      { rootMargin },
     );
 
     observer.observe(ref.current);
@@ -27,7 +27,17 @@ const LazyOnView = ({ children, rootMargin = "200px" }: LazyOnViewProps) => {
     return () => observer.disconnect();
   }, [rootMargin]);
 
-  return <div ref={ref}>{visible ? children : null}</div>;
+  return (
+    <div ref={ref} className="w-full overflow-hidden">
+      <div
+        className={`transition-all duration-700 ease-out ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
+        {visible ? children : null}
+      </div>
+    </div>
+  );
 };
 
 export default LazyOnView;
