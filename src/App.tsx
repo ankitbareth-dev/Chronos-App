@@ -1,10 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { checkAuth, selectAuth } from "./features/auth/authSlice";
@@ -13,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Spinner from "./components/Spinner";
 
 import RouteGuard from "./layouts/RouteGuard";
+import NotFound from "./components/NotFound";
 
 const LandingPage = lazy(() => import("./features/landing/LandingPage"));
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
@@ -51,7 +47,7 @@ const App = () => {
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>
