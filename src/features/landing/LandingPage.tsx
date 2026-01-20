@@ -6,7 +6,7 @@ import SectionPlaceholder from "../../components/SectionPlaceholder";
 const Features = lazy(() => import("./Features"));
 const HowItWorks = lazy(() => import("./HowItWorks"));
 const Testimonials = lazy(() => import("./Testimonials"));
-const Footer = lazy(() => import("./Footer"));
+import Footer from "./Footer";
 
 const LandingPage = () => {
   return (
@@ -32,11 +32,7 @@ const LandingPage = () => {
           </Suspense>
         </LazyOnView>
 
-        <LazyOnView rootMargin="0px">
-          <Suspense fallback={<SectionPlaceholder height="300px" />}>
-            <Footer />
-          </Suspense>
-        </LazyOnView>
+        <Footer />
       </Suspense>
     </>
   );
