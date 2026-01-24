@@ -10,10 +10,6 @@ const Hero = () => {
   const rows = 24;
   const totalCells = cols * rows;
 
-  const handleButtonClick = () => {
-    navigate("/auth");
-  };
-
   useEffect(() => {
     const container = matrixAnimationRef.current;
     if (!container) return;
@@ -72,7 +68,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
             <button
               className="bg-brand-500 hover:bg-brand-600 text-white font-medium px-7 py-3 rounded transition-colors duration-200 shadow-sm hover:shadow-md cursor-pointer"
-              onClick={handleButtonClick}
+              onClick={() => navigate("/auth")}
             >
               Get Started — It's Free
             </button>
