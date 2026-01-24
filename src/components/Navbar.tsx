@@ -1,20 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   FaClock,
   FaBars,
   FaTimes,
   FaUser,
-  FaSignOutAlt,
-  FaSpinner,
   FaChevronDown,
   FaRegUser,
-  FaExclamationCircle,
   FaTachometerAlt,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { logout, selectAuth } from "../features/auth/authSlice";
-import ModalPortal from "./ModalPortal";
+import { useClickOutside } from "../hooks/useClickOutside";
+import { LogoutModal } from "./LogoutModal";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -32,49 +31,21 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileBtnRef = useRef<HTMLButtonElement>(null);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+  useClickOutside(
+    [menuRef, buttonRef],
+    () => setMobileMenuOpen(false),
+    mobileMenuOpen,
+  );
 
-  const closeMenu = () => {
-    setMobileMenuOpen(false);
-  };
+  useClickOutside(
+    [dropdownRef, profileBtnRef],
+    () => setIsDropdownOpen(false),
+    isDropdownOpen,
+  );
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        mobileMenuOpen &&
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setMobileMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mobileMenuOpen]);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isDropdownOpen &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        profileBtnRef.current &&
-        !profileBtnRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isDropdownOpen]);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+  const closeMenu = () => setMobileMenuOpen(false);
 
   const handleLogoutClick = () => {
     setIsDropdownOpen(false);
@@ -107,13 +78,13 @@ const Navbar = () => {
 
   const linkClass =
     "font-medium text-ui-text hover:text-brand-500 transition-colors";
-
   const menuItemClass =
     "w-full flex items-center gap-3 px-4 py-2.5 text-sm text-ui-text hover:bg-ui-bg transition-colors text-left";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-ui-card/90 backdrop-blur-md shadow-sm border-b border-ui-border">
       <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+        {/* Logo */}
         <div
           className="flex items-center gap-2 text-2xl font-bold text-brand-500 cursor-pointer"
           onClick={() => navigate(isAuthenticated ? "/dashboard" : "/")}
@@ -139,6 +110,7 @@ const Navbar = () => {
           </nav>
         ) : (
           <div className="relative hidden md:block">
+            {/* Profile Button */}
             <button
               ref={profileBtnRef}
               onClick={toggleDropdown}
@@ -157,11 +129,9 @@ const Navbar = () => {
                   </div>
                 )}
               </div>
-
               <span className="text-sm font-medium text-ui-text truncate max-w-[100px]">
                 {user?.name || "User"}
               </span>
-
               <FaChevronDown
                 className="w-3 h-3 text-ui-muted transition-transform duration-200"
                 style={{
@@ -170,20 +140,19 @@ const Navbar = () => {
               />
             </button>
 
+            {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div
                 ref={dropdownRef}
                 className="absolute top-full right-0 mt-2 w-56 bg-ui-card rounded-xl shadow-xl border border-ui-border overflow-hidden z-50 animate-fade-in-down"
               >
                 <div className="absolute -top-2 right-4 w-4 h-4 bg-ui-card border-t border-l border-ui-border transform rotate-45"></div>
-
                 <div className="px-4 py-3 border-b border-ui-border">
                   <p className="text-xs text-ui-muted">Signed in as</p>
                   <p className="text-sm font-semibold text-ui-text truncate">
                     {user?.email || "user@example.com"}
                   </p>
                 </div>
-
                 <div className="py-1">
                   <button
                     className={menuItemClass}
@@ -192,7 +161,6 @@ const Navbar = () => {
                     <FaRegUser className="text-ui-muted w-5" />
                     <span>Profile</span>
                   </button>
-
                   <button
                     className={menuItemClass}
                     onClick={() => handleDropdownNavigate("/dashboard")}
@@ -213,6 +181,7 @@ const Navbar = () => {
           </div>
         )}
 
+        {/* Mobile Toggle Button */}
         <button
           ref={buttonRef}
           className="md:hidden text-2xl text-ui-text focus:outline-none p-2"
@@ -223,6 +192,7 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Mobile Menu */}
       <nav
         ref={menuRef}
         className={`md:hidden absolute top-full left-0 w-full bg-ui-card shadow-lg border-b border-ui-border transition-all duration-300 ease-in-out overflow-hidden ${
@@ -274,8 +244,6 @@ const Navbar = () => {
                 <FaTachometerAlt /> Dashboard
               </button>
             </li>
-
-            {/* Profile */}
             <li>
               <button
                 onClick={() => {
@@ -299,43 +267,14 @@ const Navbar = () => {
         )}
       </nav>
 
-      {showLogoutModal && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-ui-card rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-auto">
-              <h3 className="text-xl font-bold text-ui-text mb-2">Log out?</h3>
-              <p className="text-ui-text mb-6">
-                Are you sure you want to log out?
-              </p>
-
-              {/* Error Message Display */}
-              {logoutError && (
-                <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-600 text-sm">
-                  <FaExclamationCircle className="mt-0.5 flex-shrink-0" />
-                  <span>{logoutError}</span>
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <button
-                  onClick={cancelLogout}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-xl border border-ui-border text-ui-text hover:bg-ui-bg disabled:opacity-70"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmLogout}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-xl bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-70 flex items-center justify-center gap-2"
-                >
-                  {loading ? <FaSpinner className="animate-spin" /> : "Log out"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
+      {/* Logout Modal Component */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        loading={loading}
+        error={logoutError}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
     </header>
   );
 };
