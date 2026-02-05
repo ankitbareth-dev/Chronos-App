@@ -5,10 +5,10 @@ import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { checkAuth, selectAuth } from "./features/auth/authSlice";
 
 import Navbar from "./components/Navbar";
-import Spinner from "./components/Spinner";
 
 import RouteGuard from "./layouts/RouteGuard";
 import NotFound from "./components/NotFound";
+import SplashScreen from "./components/SplashScreen";
 
 const LandingPage = lazy(() => import("./features/landing/LandingPage"));
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
@@ -27,7 +27,7 @@ const App = () => {
   }, [dispatch]);
 
   return initialLoading ? (
-    <Spinner />
+    <SplashScreen />
   ) : (
     <Router>
       <Navbar />
