@@ -1,14 +1,14 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { checkAuth, selectAuth } from "./features/auth/authSlice";
 
 import Navbar from "./components/Navbar";
+import SplashScreen from "./components/SplashScreen";
 
 import RouteGuard from "./layouts/RouteGuard";
 import NotFound from "./components/NotFound";
-import SplashScreen from "./components/SplashScreen";
 
 const LandingPage = lazy(() => import("./features/landing/LandingPage"));
 const AuthPage = lazy(() => import("./features/auth/AuthPage"));
@@ -22,12 +22,24 @@ const App = () => {
   const dispatch = useAppDispatch();
   const { initialLoading } = useAppSelector(selectAuth);
 
+  const [showSplash, setShowSplash] = useState(true);
+
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  return initialLoading ? (
-    <SplashScreen />
+  useEffect(() => {
+    if (!initialLoading) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [initialLoading]);
+
+  return showSplash ? (
+    <SplashScreen isExiting={!initialLoading} />
   ) : (
     <Router>
       <Navbar />
